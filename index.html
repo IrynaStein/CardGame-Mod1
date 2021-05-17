@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Card Game</title>
+    <link rel="stylesheet" href="index.css" />
+    <!-- <script src="index.js" charset="utf-8"></script> -->
+</head>
+
+<body>
+    <div class="top-containers">
+        <div class="intro-container">
+            <form class="intro-form">
+                <h1 id='greeting'>Hello Stranger!</h1>
+
+                <input type="text" name="name" value="" placeholder="Enter a your name..." class="input-text" />
+                <br />
+                <input type="text" name="image" value="" placeholder="Enter your player name..." class="input-text" />
+                <br />
+                <input type="submit" name="submit" value="Introduce" class="buttons" />
+            </form>
+        </div>
+        <div id="bet-container">
+            <!-- <h1 id="instruction2"></h1> -->
+            <h1 id='bet'>5</h1>
+            <div class="bet-buttons">
+                <button id='increase' class="buttons" style="font-size:16px"> &#43; </button>
+                <button id='decrease' class="buttons" style="font-size:16px"> &#8722; </button>
+                <br />
+                <button type="button" id="submit-bet" class="buttons">Submit my bet</button>
+                <button type="button" id="score" class="buttons">display score</button>
+            </div>
+        </div>
+        <br />
+        <div class="game-container">
+            <button type="button" id="gameOn-button" class="block">Lets play!</button>
+            <button type="evaluate" id="evaluate-button" class="block2">Evaluate Game</button>
+            <div class='bank-container'>
+                <div class = "center">
+                    <h2 id="houseBank"></h2>
+                    <h2 id="house"></h2>
+                </div>
+                <div class = "center">
+                    <h2 id="playerName"></h2>
+                    <h2 id="playerBank"></h2>
+                </div>
+            </div>
+            <div id="cards-image-containers">
+
+                <!-- cards here -->
+            </div>
+            <script type="text/javascript" src="index.js"></script>
+            <!-- <script type="text/javascript" src="backup.js"></script> -->
+        </div>
+
+</body>
+
+</html>
