@@ -16,7 +16,8 @@ console.log(`house total ${totalHB}`)
 const totalPB = []
 console.log(`player total ${totalPB}`)
 
-score.addEventListener('click', function total() {
+
+score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
     let a = totalHB.reduce(function (acc, val) {
         return (acc + val);
     }, 0)
@@ -37,6 +38,7 @@ score.addEventListener('click', function total() {
             houseBank.className = ""
         }, 6000);
         new Audio("./sound/fail.mp3").play()
+        
     }
     else {
         console.log(a, b)
@@ -62,6 +64,10 @@ function fetchCards() {
     return fetch(regularDeck)
         .then(resp => resp.json())
         .then(data => renderCards(data.cards))
+        .catch(function (error) {
+            const alertMessage = error.message
+            document.body.innerHTML = alertMessage
+        })
     //returns an Array of two Objects
 }
 
@@ -112,7 +118,7 @@ function renderCards(setOftwoCards) {
 const form = document.forms[0]
 const greetingMessage = document.getElementById('greeting')
 
-const betIntro = document.getElementById('instruction2')
+// const betIntro = document.getElementById('instruction2')
 
 
 form.addEventListener('submit', function (event) {
@@ -139,7 +145,7 @@ const betSetter = document.getElementById('bet')
 let betAmount = 5
 
 function addBetMoney() {
-
+    new Audio("./sound/ascend.mp3").play()
     if (betAmount < 100) {
         betAmount += 5
         betSetter.innerHTML = betAmount
@@ -150,6 +156,7 @@ function addBetMoney() {
 }
 
 function subtractBetMoney() {
+    new Audio("./sound/descend.mp3").play()
     if (betAmount > 5) {
         betAmount -= 5
         betSetter.innerHTML = betAmount
@@ -220,12 +227,12 @@ function compareValues() {
     console.log(`p2 after transitioin${p2}`)
     // console.log(p1, p2)
     if (parseInt(p1, 10) > parseInt(p2, 10)) {
-        console.log(parseInt(p1, 10) > parseInt(p2, 10))
+        // console.log(parseInt(p1, 10) > parseInt(p2, 10))
 
         houseBank.innerHTML = parseInt(betSetter.innerHTML, 10)
         playerBank.innerHTML = 0
         totalHB.push(parseInt(betSetter.innerHTML, 10))
-        console.log(`pushing ${parseInt(betSetter.innerHTML, 10)} to house`)
+        // console.log(`pushing ${parseInt(betSetter.innerHTML, 10)} to house`)
     }
 
     else if (parseInt(p1, 10) === parseInt(p2, 10)) {
