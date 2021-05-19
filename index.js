@@ -10,41 +10,22 @@ const gameOn = document.getElementById('gameOn-button')
 const evaluate = document.getElementById('evaluate-button')
 const score = document.getElementById('score')
 
-const totalHB = []
-const totalPB = []
+const form = document.forms[0]
+const greetingMessage = document.getElementById('greeting')
 
-score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
-    let a = totalHB.reduce(function (acc, val) {
-        return (acc + val);
-    }, 0)
-    let b = totalPB.reduce(function (acc, val) {
-        return (acc + val);
-    }, 0)
-
-    if (a > b) {
-        houseBank.className = "display"
-        houseBank.innerHTML = a
-        playerBank.innerHTML = b
-        setTimeout(function () {
-            houseBank.innerHTML = 0
-            playerBank.innerHTML = 0
-            houseBank.className = ""
-        }, 6000);
-        new Audio("./sound/fail.mp3").play()
-
+form.addEventListener('submit', function (event) {
+    let submissionNames = {
+        name: event.target[0].value,
+        playerName: event.target[1].value
     }
-    else {
-        playerBank.className = "display"
-        houseBank.innerHTML = a
-        playerBank.innerHTML = b
-        setTimeout(function () {
-            houseBank.innerHTML = 0
-            playerBank.innerHTML = 0
-            playerBank.className = ""
-        }, 6000);
-        new Audio("./sound/applause.mp3").play()
+    if (submissionNames.name && submissionNames.playerName) {
+        greetingMessage.innerHTML = `Welcome to the game ${submissionNames.name} the "${submissionNames.playerName}"!`
+        form.reset()
+        event.preventDefault()
+    } else {
+        alert("Please, introduce yourself")
+        event.preventDefault()
     }
-
 })
 
 let cardValues = []
@@ -94,25 +75,6 @@ function renderCards(setOftwoCards) {
 
     }
 }
-
-const form = document.forms[0]
-const greetingMessage = document.getElementById('greeting')
-
-form.addEventListener('submit', function (event) {
-    let submissionNames = {
-        name: event.target[0].value,
-        playerName: event.target[1].value
-    }
-    if (submissionNames.name && submissionNames.playerName) {
-        greetingMessage.innerHTML = `Welcome to the game ${submissionNames.name} the "${submissionNames.playerName}"!`
-        form.reset()
-        event.preventDefault()
-    } else {
-        alert("Please, introduce yourself")
-        event.preventDefault()
-    }
-
-})
 
 const increaseBet = document.getElementById('increase')
 const decreaseBet = document.getElementById('decrease')
@@ -212,3 +174,40 @@ function compareValues() {
         totalPB.push(parseInt(betSetter.innerHTML, 10))
     }
 }
+
+const totalHB = []
+const totalPB = []
+
+score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
+    let a = totalHB.reduce(function (acc, val) {
+        return (acc + val);
+    }, 0)
+    let b = totalPB.reduce(function (acc, val) {
+        return (acc + val);
+    }, 0)
+
+    if (a > b) {
+        houseBank.className = "display"
+        houseBank.innerHTML = a
+        playerBank.innerHTML = b
+        setTimeout(function () {
+            houseBank.innerHTML = 0
+            playerBank.innerHTML = 0
+            houseBank.className = ""
+        }, 6000);
+        new Audio("./sound/fail.mp3").play()
+
+    }
+    else {
+        playerBank.className = "display"
+        houseBank.innerHTML = a
+        playerBank.innerHTML = b
+        setTimeout(function () {
+            houseBank.innerHTML = 0
+            playerBank.innerHTML = 0
+            playerBank.className = ""
+        }, 6000);
+        new Audio("./sound/applause.mp3").play()
+    }
+
+})
