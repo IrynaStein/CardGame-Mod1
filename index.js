@@ -79,7 +79,6 @@ function renderCards(setOftwoCards) {
         removeAllChildNodes(cardsContainer)
 
         let value1 = []
-        console.log(value1)
         cardValues.unshift(value1)
         setOftwoCards.forEach(eachCardObj => {
             let img = document.createElement('IMG')
