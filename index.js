@@ -4,31 +4,24 @@ document.addEventListener('DOMContentLoaded', function () {
     bankContainer.style.display = "none"
 
 })
-const shuffleDeck = 'https://deckofcardsapi.com/api/deck/1f99ujnnyb99/shuffle/'
-const regularDeck = "https://deckofcardsapi.com/api/deck/new/draw/?count=2"
 
+const regularDeck = "https://deckofcardsapi.com/api/deck/new/draw/?count=2"
 const gameOn = document.getElementById('gameOn-button')
 const evaluate = document.getElementById('evaluate-button')
 const score = document.getElementById('score')
 
 const totalHB = []
-console.log(`house total ${totalHB}`)
 const totalPB = []
-console.log(`player total ${totalPB}`)
-
 
 score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
     let a = totalHB.reduce(function (acc, val) {
         return (acc + val);
     }, 0)
-    console.log(a)
     let b = totalPB.reduce(function (acc, val) {
         return (acc + val);
     }, 0)
-    console.log(b)
 
     if (a > b) {
-        console.log(a, b)
         houseBank.className = "display"
         houseBank.innerHTML = a
         playerBank.innerHTML = b
@@ -38,10 +31,9 @@ score.addEventListener('click', function total() { //add dropdown that allows to
             houseBank.className = ""
         }, 6000);
         new Audio("./sound/fail.mp3").play()
-        
+
     }
     else {
-        console.log(a, b)
         playerBank.className = "display"
         houseBank.innerHTML = a
         playerBank.innerHTML = b
@@ -56,7 +48,6 @@ score.addEventListener('click', function total() { //add dropdown that allows to
 })
 
 let cardValues = []
-console.log(`array of value${cardValues}`)
 
 gameOn.addEventListener('click', fetchCards)
 
@@ -68,7 +59,6 @@ function fetchCards() {
             const alertMessage = error.message
             document.body.innerHTML = alertMessage
         })
-    //returns an Array of two Objects
 }
 
 function renderCards(setOftwoCards) {
@@ -81,17 +71,12 @@ function renderCards(setOftwoCards) {
 
     const cardsContainer = document.getElementById('cards-image-containers')
     if (gameOn.innerHTML === "Lets play!") {
-
         gameOn.innerHTML = "Draw cards!"
         score.disabled = true
-
-
-        // })
     } else {
         new Audio("./sound/switch.mp3").play()
         evaluate.disabled = false
         removeAllChildNodes(cardsContainer)
-
 
         let value1 = []
         console.log(value1)
@@ -104,11 +89,7 @@ function renderCards(setOftwoCards) {
             let value = eachCardObj.value
             value1.push(value)
             let p1 = value1[0]
-            // card1.push(p1)
-            console.log(`p1 ${p1}`)
             let p2 = value1[1]
-            console.log(`p2 ${p2}`)
-            // card2.push(p2)
             score.disabled = true
         })
 
@@ -118,9 +99,6 @@ function renderCards(setOftwoCards) {
 const form = document.forms[0]
 const greetingMessage = document.getElementById('greeting')
 
-// const betIntro = document.getElementById('instruction2')
-
-
 form.addEventListener('submit', function (event) {
     let submissionNames = {
         name: event.target[0].value,
@@ -128,9 +106,7 @@ form.addEventListener('submit', function (event) {
     }
     if (submissionNames.name && submissionNames.playerName) {
         greetingMessage.innerHTML = `Welcome to the game ${submissionNames.name} the "${submissionNames.playerName}"!`
-
         form.reset()
-
         event.preventDefault()
     } else {
         alert("Please, introduce yourself")
@@ -194,9 +170,8 @@ evaluate.addEventListener('click', function () {
 })
 
 function compareValues() {
-
     let p1 = cardValues[0][0]
-    console.log(`p1 ${p1}`)
+
     if (p1 === "JACK") {
         p1 = 11
     }
@@ -209,9 +184,9 @@ function compareValues() {
     if (p1 === "ACE") {
         p1 = 14
     }
-    console.log(`p1 after transitioin${p1}`)
+
     let p2 = cardValues[0][1]
-    console.log(`p2 ${p2}`)
+
     if (p2 === "JACK") {
         p2 = 11
     }
@@ -224,26 +199,17 @@ function compareValues() {
     if (p2 === "ACE") {
         p2 = 14
     }
-    console.log(`p2 after transitioin${p2}`)
-    // console.log(p1, p2)
     if (parseInt(p1, 10) > parseInt(p2, 10)) {
-        // console.log(parseInt(p1, 10) > parseInt(p2, 10))
-
         houseBank.innerHTML = parseInt(betSetter.innerHTML, 10)
         playerBank.innerHTML = 0
         totalHB.push(parseInt(betSetter.innerHTML, 10))
-        // console.log(`pushing ${parseInt(betSetter.innerHTML, 10)} to house`)
     }
-
     else if (parseInt(p1, 10) === parseInt(p2, 10)) {
         alert(`It's a draw! Play again`)
     }
-
     else {
-
         playerBank.innerHTML = parseInt(betSetter.innerHTML, 10)
         houseBank.innerHTML = 0
         totalPB.push(parseInt(betSetter.innerHTML, 10))
-        console.log(`pushing ${parseInt(betSetter.innerHTML, 10)} to player`)
     }
 }
