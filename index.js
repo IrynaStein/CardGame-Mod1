@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
 })
 
 const regularDeck = "https://deckofcardsapi.com/api/deck/new/draw/?count=2"
+const blackJackDeck = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6'
 const gameOn = document.getElementById('gameOn-button')
 const evaluate = document.getElementById('evaluate-button')
 const score = document.getElementById('score')
