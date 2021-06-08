@@ -18,15 +18,13 @@ form.addEventListener('submit', function (event) {
     let submissionNames = {
         name: event.target[0].value,
         playerName: event.target[1].value
-
     }
     if (submissionNames.name && submissionNames.playerName) {
         greetingMessage.innerHTML = `Welcome to the game ${submissionNames.name} the "${submissionNames.playerName}"!`
         form.reset()
         
     } else {
-        alert("Please, introduce yourself")
-       
+        alert("Please, introduce yourself")  
     }
 })
 
@@ -71,8 +69,8 @@ function renderCards(setOftwoCards) {
             cardsContainer.appendChild(img)
             let value = eachCardObj.value
             value1.push(value)
-            let p1 = value1[0]
-            let p2 = value1[1]
+            // let p1 = value1[0]
+            // let p2 = value1[1]
             score.disabled = true
         })
 
