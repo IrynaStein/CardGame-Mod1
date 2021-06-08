@@ -5,8 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 })
 
-const oneCard = "https://deckofcardsapi.com/api/deck/new/draw/?count=1"
-const cards4Deck = "https://deckofcardsapi.com/api/deck/new/draw/?count=4"
+const cards6Deck = "https://deckofcardsapi.com/api/deck/new/draw/?count=6"
 // const blackJackDeck = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6'
 const gameOn = document.getElementById('gameOn-button')
 const evaluate = document.getElementById('evaluate-button')
@@ -93,7 +92,7 @@ function fetchCards1(url) {
         })
 }
 
-function renderOneCard(data) {
+function renderOneGuestCard(data) {
     let img2 = document.createElement('IMG')
     img2.src = data.image
     img2.className = "smallcard"
@@ -101,34 +100,42 @@ function renderOneCard(data) {
     const standButton = document.createElement('button')
     hitButton.className = "buttons"
     standButton.className = "buttons"
-    hitButton.innerText= "HIT"
+    hitButton.innerText = "HIT"
     standButton.innerText = "STAND"
     cardsContainer.append(standButton, hitButton)
-    
-    hitButton.addEventListener('click', (event) => { 
-        event.preventDefault()
-        cardsContainer.appendChild(img2) })
 
+    hitButton.addEventListener('click', (event) => {
+        event.preventDefault()
+        cardsContainer.appendChild(img2)
+    })
+
+}
+
+function renderOneHouseCard(data) {
+    let img2 = document.createElement('IMG')
+    img2.src = data.image
+    img2.className = "smallcard"
+    cardsContainer.appendChild(img2)
 }
 
 //if value is less than 21 offer choice of HIT or Stand, displays current sum
 function calculateDraw(playerScore, position) {
-    if (position === "guest"){
+    if (position === "guest") {
         if (playerScore < 17) {
             //fetch request for 1 card
             // console.log('draw another card')
             fetchCards1(oneCard)
         }
         if (playerScore >= 17 && playerScore <= 20) {
-            const decision = Math.ceil(Math.random()*10)
-            if (decision <= 5){
+            const decision = Math.ceil(Math.random() * 10)
+            if (decision <= 5) {
                 console.log("Decision: draw another", decision)
             }
             else {
                 console.log('Decision: I stand', decision)
             }
             //math.random for triggering a fetch request
-            
+
         }
         if (playerScore === 21) {
             //congratulations;displays wonner name; end game - do you want to play another game?
@@ -140,7 +147,11 @@ function calculateDraw(playerScore, position) {
         }
     }
     else {
-        console.log("The house is playing")
+        if (playerScore < 17) {
+            //fetch request for 1 card
+            // console.log('draw another card')
+            fetchCards1(oneCard)
+        }
     }
 
 }
