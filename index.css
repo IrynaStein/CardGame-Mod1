@@ -25,6 +25,11 @@ h2 {
     border-radius: 25px;
 }
 
+.hiddencard {
+    width:226 px;
+    height: 314 px;
+}
+
 .bank-container {
     width: 100%;
     display: inline-block;
