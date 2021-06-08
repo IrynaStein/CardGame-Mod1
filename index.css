@@ -25,9 +25,9 @@ h2 {
     border-radius: 25px;
 }
 
-.hiddencard {
-    width:226 px;
-    height: 314 px;
+.smallcard {
+    width: 15%;
+    height: 15%;
 }
 
 .bank-container {

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 })
 
-const regularDeck = "https://deckofcardsapi.com/api/deck/new/draw/?count=2"
+const oneCard = "https://deckofcardsapi.com/api/deck/new/draw/?count=1"
 const cards4Deck = "https://deckofcardsapi.com/api/deck/new/draw/?count=4"
 // const blackJackDeck = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6'
 const gameOn = document.getElementById('gameOn-button')
@@ -32,32 +32,31 @@ form.addEventListener('submit', function (event) {
 
 let cardValues = []
 
-gameOn.addEventListener('click', fetchCards)
+gameOn.addEventListener('click', () => fetchCards(cards4Deck))
 //first fetch request draws 4 cards
-function fetchCards() {
-    return fetch(cards4Deck)
+function fetchCards(url) {
+    return fetch(url)
         .then(resp => resp.json())
-        .then(data => renderCards2(data.cards))
+        .then(data => renderCards(data.cards))
         .catch(function (error) {
             const alertMessage = error.message
             document.body.innerHTML = alertMessage
         })
 }
 
-
+const cardsContainer = document.getElementById('cards-image-containers')
 //function renderCards
 //receives an array of 4 cardObjs and iterates over it
 //renders first card so you cant see it's value and suite
 //for loop - first iteration renders house card (stays hidden)
 //2,3,4 iteration renders the players cards and one dealers card (open face)
-function renderCards2(array) {
-    const cardsContainer = document.getElementById('cards-image-containers')
+function renderCards(array) {
     const newArray = array.slice(1)
     const { value, suit } = array[0]
     let img1 = document.createElement('IMG')
     //refactor all this as a set up for innerHTML
     img1.src = "./images/backcard.png"
-    img1.className = "hiddencard"
+    img1.className = "smallcard"
     img1.setAttribute("width", "226px")
     img1.setAttribute("height", "318px")
     img1.id = `${value},${suit}`
@@ -65,13 +64,14 @@ function renderCards2(array) {
     newArray.map((card) => {
         let img = document.createElement('IMG')
         img.src = card.image
+        img.className = "smallcard"
         cardsContainer.appendChild(img)
     })
     cardsContainer.appendChild(img1)
     evaluateCards(array)
 }
 
-
+//sets card values to Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.
 function convertValues(array) {
     array.map((element) => {
         if (element.value === "JACK" || element.value === "QUEEN" || element.value === "KING") {
@@ -83,30 +83,93 @@ function convertValues(array) {
     })
 }
 
+function fetchCards1(url) {
+    return fetch(url)
+        .then(resp => resp.json())
+        .then(data => renderOneCard(data.cards[0]))
+        .catch(function (error) {
+            const alertMessage = error.message
+            document.body.innerHTML = alertMessage
+        })
+}
 
+function renderOneCard(data) {
+    let img2 = document.createElement('IMG')
+    img2.src = data.image
+    img2.className = "smallcard"
+    const hitButton = document.createElement('button')
+    const standButton = document.createElement('button')
+    hitButton.className = "buttons"
+    standButton.className = "buttons"
+    hitButton.innerText= "HIT"
+    standButton.innerText = "STAND"
+    cardsContainer.append(standButton, hitButton)
+    
+    hitButton.addEventListener('click', (event) => { 
+        event.preventDefault()
+        cardsContainer.appendChild(img2) })
+
+}
+
+//if value is less than 21 offer choice of HIT or Stand, displays current sum
+function calculateDraw(playerScore, position) {
+    if (position === "guest"){
+        if (playerScore < 17) {
+            //fetch request for 1 card
+            // console.log('draw another card')
+            fetchCards1(oneCard)
+        }
+        if (playerScore >= 17 && playerScore <= 20) {
+            const decision = Math.ceil(Math.random()*10)
+            if (decision <= 5){
+                console.log("Decision: draw another", decision)
+            }
+            else {
+                console.log('Decision: I stand', decision)
+            }
+            //math.random for triggering a fetch request
+            
+        }
+        if (playerScore === 21) {
+            //congratulations;displays wonner name; end game - do you want to play another game?
+            console.log("Black Jack")
+        }
+        if (playerScore > 21) {
+            //too bad; displays winner's name; end game - do you want to play another game
+            console.log("BUSTED!")
+        }
+    }
+    else {
+        console.log("The house is playing")
+    }
+
+}
 
 //function Evaluate cards
 
 function evaluateCards(array) {
     convertValues(array)
-console.log(array[0].value)
-    const housescore = Number(array[1].value) + Number(array[2].value)
+    //summs up values of dealers cards
+    let housescore = Number(array[1].value) + Number(array[2].value)
     console.log(housescore)
-    const guestscore = Number(array[0].value) + Number(array[3].value)
+    //sums up values of players cards
+    let guestscore = Number(array[0].value) + Number(array[3].value)
     console.log(guestscore)
+    calculateDraw(housescore, "guest")
+    calculateDraw(guestscore)
     //order of rendered cards below (1,2 - guest cards; 3,0 - house)
     // console.log(array[1].value)
     // console.log(array[2].value)
     // console.log(array[3].value)
     // console.log(array[0].value)
+
 }
-//sets card values to Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.
-//summs up values of dealers cards
-//sums up values of players cards
-//if value is less than 21 offer choice of HIT or Stand, displays current sum
 
 
-//second fetch request draws 2 cards at a time
+
+
+
+
 
 
 
