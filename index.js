@@ -14,17 +14,19 @@ const form = document.forms[0]
 const greetingMessage = document.getElementById('greeting')
 
 form.addEventListener('submit', function (event) {
+    event.preventDefault()
     let submissionNames = {
         name: event.target[0].value,
         playerName: event.target[1].value
+
     }
     if (submissionNames.name && submissionNames.playerName) {
         greetingMessage.innerHTML = `Welcome to the game ${submissionNames.name} the "${submissionNames.playerName}"!`
         form.reset()
-        event.preventDefault()
+        
     } else {
         alert("Please, introduce yourself")
-        event.preventDefault()
+       
     }
 })
 
@@ -54,7 +56,8 @@ function renderCards(setOftwoCards) {
     if (gameOn.innerHTML === "Lets play!") {
         gameOn.innerHTML = "Draw cards!"
         score.disabled = true
-    } else {
+    }
+    else {
         new Audio("./sound/switch.mp3").play()
         evaluate.disabled = false
         removeAllChildNodes(cardsContainer)
@@ -133,32 +136,36 @@ evaluate.addEventListener('click', function () {
 function compareValues() {
     let p1 = cardValues[0][0]
 
-    if (p1 === "JACK") {
-        p1 = 11
-    }
-    if (p1 === "QUEEN") {
-        p1 = 12
-    }
-    if (p1 === "KING") {
-        p1 = 13
-    }
-    if (p1 === "ACE") {
-        p1 = 14
-    }
+    switch (p1) {
+        case "JACK":
+            p1 = 11
+            break;
+        case "QUEEN":
+            p1 = 12
+            break;
+        case "KING":
+            p1 = 13
+            break;
+        case "ACE":
+            p1 = 14
+            break;
+    };
 
     let p2 = cardValues[0][1]
 
-    if (p2 === "JACK") {
-        p2 = 11
-    }
-    if (p2 === "QUEEN") {
-        p2 = 12
-    }
-    if (p2 === "KING") {
-        p2 = 13
-    }
-    if (p2 === "ACE") {
-        p2 = 14
+    switch (p2) {
+        case "JACK":
+            p2 = 11
+            break;
+        case "QUEEN":
+            p2 = 12
+            break;
+        case "KING":
+            p2 = 13
+            break;
+        case "ACE":
+            p2 = 14
+            break;
     }
     if (parseInt(p1, 10) > parseInt(p2, 10)) {
         houseBank.innerHTML = parseInt(betSetter.innerHTML, 10)
