@@ -11,7 +11,6 @@ const cards4Deck = "https://deckofcardsapi.com/api/deck/new/draw/?count=4"
 const gameOn = document.getElementById('gameOn-button')
 const evaluate = document.getElementById('evaluate-button')
 const score = document.getElementById('score')
-
 const form = document.forms[0]
 const greetingMessage = document.getElementById('greeting')
 
@@ -53,33 +52,84 @@ function displayACard(srcUrl, appendTo) {
 }
 
 const cardsContainer = document.getElementById('cards-image-containers')
-//function renderCards
-//receives an array of 4 cardObjs and iterates over it
-//renders first card so you cant see it's value and suite
-//for loop - first iteration renders house card (stays hidden)
-//2,3,4 iteration renders the players cards and one dealers card (open face)
+const houseCards = document.querySelector("#extraHOUSEcards-container")
+const guestCards = document.querySelector("#extraGUESTcards-container")
+
+
 function renderCards(array) {
-    const newArray = array.slice(1)
+    console.log(array)
+    const newArray = array.slice(2)
     const { value, suit } = array[0]
+    const value1 = array[1].value
+    const suit1 = array[1].suit
     let img1 = document.createElement('IMG')
     //refactor all this as a set up for innerHTML
     img1.src = "./images/backcard.png"
-    // img1.className = "cardWindow"
     img1.setAttribute("width", "108 px")
     img1.setAttribute("height", "150 px")
-    img1.id = `${value},${suit}`
-    console.log(newArray, value, suit)
-    newArray.map((card) => {
-        let img = document.createElement('IMG')
-        img.src = card.image
-        // img.className = "cardWindow"
-        img.setAttribute("width", "108 px")
-        img.setAttribute("height", "150 px")
-        cardsContainer.appendChild(img)
-    })
-    cardsContainer.appendChild(img1)
+    houseCards.appendChild(img1)
+    img1.id = `${value},${suit}`//from array[0]
+    displayACard(array[1].image, houseCards)
+    console.log(newArray, value + suit, value1 + suit1)
+    newArray.map((card) => {displayACard(card.image, guestCards)
+    })   
     evaluateCards(array)
 }
+
+//function Evaluate cards
+function evaluateCards(array) {
+    console.log(array)
+    convertValues(array)
+    //summs up values of dealers cards
+    let guestscore = Number(array[1].value) + Number(array[2].value)
+    playerScoreDisplay.innerText = guestscore
+    console.log(guestscore)
+    //sums up values of players cards
+    let housescore = Number(array[0].value) + Number(array[3].value)
+    houseScoreDisplay.innerText = ""
+    console.log(housescore)
+    calculateDraw(housescore, guestscore)
+    // calculateDraw(housescore, guestscore, "house")
+    //order of rendered cards below (1,2 - guest cards; 3,0 - house)
+    // console.log(array[1].value)
+    // console.log(array[2].value)
+    // console.log(array[3].value)
+    // console.log(array[0].value)
+
+}
+
+function hitOrStandPlayer(score){
+    if (position === guest){
+        if (score <=20){
+            //hit or stand
+// hit - draw another card
+//stand return -> hit or stand House
+        }
+        if (score === 21){
+            //Black-Jack
+        }
+        else {
+            //BUST
+        }
+    }
+}
+
+function hitOrStandHouse(score){
+        if (score <=17){
+            // hit
+        }
+        if (score > 17 && score <=20){
+            //Math.random decision to hit of stand
+            //if hit -> draw a card
+            //if stand hitOrStand player
+        }
+        if (score === 21){
+            //Black-Jack
+        }
+        else {
+            //BUST
+        }
+    }
 
 //sets card values to Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.
 function convertValues(array) {
@@ -93,6 +143,25 @@ function convertValues(array) {
     })
 }
 
+const hitButton = document.createElement('button')
+const standButton = document.createElement('button')
+hitButton.className = "buttons"
+standButton.className = "buttons"
+hitButton.innerText = "HIT ME"
+standButton.innerText = "STAND"
+hitButton.disabled = true
+standButton.disabled = true
+evaluate.append(standButton, hitButton)
+const submitBet = document.getElementById('submit-bet')
+const houseNamenDisplay = document.getElementById('houseName')
+const playerNameDisplay = document.getElementById('guestName')
+const bankContainer = document.querySelector('.bank-container')
+const playerBank = document.getElementById('guestBank')
+const houseBank = document.getElementById('houseBank')
+const houseScoreDisplay = document.querySelector("#houseScoreBoard")
+const playerScoreDisplay = document.querySelector("#guestScoreBoard")
+
+
 function fetchCards2(url, position, housescore, guestscore) {
     return fetch(url)
         .then(resp => resp.json())
@@ -103,28 +172,11 @@ function fetchCards2(url, position, housescore, guestscore) {
         })
 }
 
-const hitButton = document.createElement('button')
-const standButton = document.createElement('button')
-hitButton.className = "buttons"
-standButton.className = "buttons"
-hitButton.innerText = "HIT"
-standButton.innerText = "STAND"
-hitButton.disabled = true
-standButton.disabled = true
-evaluate.append(standButton, hitButton)
+
 
 function renderOneCard(data, position, housescore, guestscore) {
-    // (function renderValues(data) {
-    //     if (data.value === "JACK" || data.value === "QUEEN" || data.value === "KING") {
-    //         data.value = 10
-    //     }
-    //     else if (data.value === "ACE") {
-    //         data.value = 11
-    //     }
-    // })(data)
     convertValues(data)
-    const extraGuestCards = document.querySelector("#extraGUESTcards-container")
-    displayACard(data[0].image, extraGuestCards )
+    displayACard(data[0].image, guestCards )
     let newPlayerScoreG = (Number(data[0].value) + Number(guestscore))
     console.log(newPlayerScoreG)
     if (newPlayerScoreG === 21) {
@@ -140,8 +192,7 @@ function renderOneCard(data, position, housescore, guestscore) {
     if (newPlayerScoreG < 21) {
         console.log("Guest, it's house turn")
         if (housescore < 17) {
-            const extraHouseCards = document.querySelector("#extraHOUSEcards-container")
-            displayACard(data[1].image, extraHouseCards)
+            displayACard(data[1].image, houseCards)
             let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
             console.log(newPlayerScoreH)
             if (newPlayerScoreH > 21) {
@@ -158,8 +209,7 @@ function renderOneCard(data, position, housescore, guestscore) {
             const decision = Math.ceil(Math.random() * 10)
             if (decision <= 5) {
                 console.log("HOUSE Decision: draw another card", decision)
-                const extraHouseCards = document.querySelector("#extraHOUSEcards-container")
-                displayACard(data[1].image, extraHouseCards)
+                displayACard(data[1].image, houseCards)
                 let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
                 console.log(newPlayerScoreH)
                 if (newPlayerScoreH > 21) {
@@ -192,13 +242,7 @@ function calculateDraw(housescore, guestscore, position) {
     if (guestscore === 21) {
         //congratulations;displays wonner name; end game - do you want to play another game?
         console.log("Guest, you got a Black Jack")
-        // const newGameButton = document.createElement('button')
-        // newGameButton.innerText = "New Game"
-        // document.body.appendChild(newGameButton)
-        // newGameButton.addEventListener('click', ()=>{
-        //     cardsContainer.innerHTML = ""
-        //     fetchCards(cards4Deck)
-        // })
+
     }
     if (guestscore > 21) {
         //too bad; displays winner's name; end game - do you want to play another game
@@ -230,32 +274,18 @@ function calculateDraw(housescore, guestscore, position) {
 
     }
 
-    // }//end of else
-}
-
-//function Evaluate cards
-
-function evaluateCards(array) {
-    convertValues(array)
-    //summs up values of dealers cards
-    let guestscore = Number(array[1].value) + Number(array[2].value)
-    console.log(guestscore)
-    //sums up values of players cards
-    let housescore = Number(array[0].value) + Number(array[3].value)
-    console.log(housescore)
-    calculateDraw(housescore, guestscore)
-    // calculateDraw(housescore, guestscore, "house")
-    //order of rendered cards below (1,2 - guest cards; 3,0 - house)
-    // console.log(array[1].value)
-    // console.log(array[2].value)
-    // console.log(array[3].value)
-    // console.log(array[0].value)
-
 }
 
 
 
-
+//create a button within Modal Box for a new game 
+        // const newGameButton = document.createElement('button')
+        // newGameButton.innerText = "New Game"
+        // document.body.appendChild(newGameButton)
+        // newGameButton.addEventListener('click', ()=>{
+        //     cardsContainer.innerHTML = ""
+        //     fetchCards(cards4Deck)
+        // })
 
 
 
@@ -287,12 +317,7 @@ function subtractBetMoney() {
 increaseBet.addEventListener('click', addBetMoney)
 decreaseBet.addEventListener('click', subtractBetMoney)
 
-const submitBet = document.getElementById('submit-bet')
-const houseNamenDisplay = document.getElementById('house')
-const playerNameDisplay = document.getElementById('playerName')
-const bankContainer = document.querySelector('.bank-container')
-const playerBank = document.getElementById('playerBank')
-const houseBank = document.getElementById('houseBank')
+
 
 submitBet.addEventListener('click', event => {
     const snd = new Audio("./sound/preview.mp3");
@@ -300,8 +325,8 @@ submitBet.addEventListener('click', event => {
     bankContainer.style.display = "block"
     gameOn.style.display = "block"
     evaluate.style.display = "block"
-    houseNamenDisplay.innerHTML = "GUEST"//switched to guest
-    playerNameDisplay.innerHTML = "HOUSE"//switched to house
+    houseNamenDisplay.innerHTML = "HOUSE"
+    playerNameDisplay.innerHTML = "GUEST"
     houseBank.innerHTML = betAmount
     playerBank.innerHTML = betAmount
     betSetter.innerHTML = betAmount
