@@ -132,7 +132,7 @@ function renderOneCard(data, position, housescore, guestscore) {
     }
     if (newPlayerScoreG < 21) {
         console.log("Guest, it's house turn")
-        if (housescore <= 17) {
+        if (housescore < 17) {
             let img3 = document.createElement('IMG')
             img3.src = data[1].image
             img3.className = "smallcard"
@@ -150,10 +150,10 @@ function renderOneCard(data, position, housescore, guestscore) {
                 console.log("Need another card")
             }
         }
-        if (housescore > 17 && housescore < 20) {
+        if (housescore >= 17 && housescore <= 20) {
             const decision = Math.ceil(Math.random() * 10)
             if (decision <= 5) {
-                console.log("HOUSE Decision: draw another", decision)
+                console.log("HOUSE Decision: draw another card", decision)
                 let img3 = document.createElement('IMG')
                 img3.src = data[1].image
                 img3.className = "smallcard"
@@ -161,6 +161,15 @@ function renderOneCard(data, position, housescore, guestscore) {
                 extraHouseCards.appendChild(img3)
                 let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
                 console.log(newPlayerScoreH)
+                if (newPlayerScoreH > 21) {
+                    console.log("House you are BUSTED! Guest wins")
+                }
+                if (newPlayerScoreH === 21) {
+                    console.log("House, you got BLACK JACK")
+                }
+                if (newPlayerScoreH < 21) {
+                    console.log("Need another card#2")
+                }
             }
             else {
                 console.log('HOUSE: Decision: I stand', decision)
