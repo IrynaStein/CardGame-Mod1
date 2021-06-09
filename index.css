@@ -64,13 +64,13 @@ h2 {
     height: 30%;
     width: 45%;
 }
+
 #extraHOUSEcards-container {
-display: block;
-float: right;
+    float: right;
 }
-#extraGUESTcards-container{
-    display: block;
-    float: left; 
+
+#extraGUESTcards-container {   
+    float: left;
 }
 
 #bet-container {
@@ -128,7 +128,8 @@ float: right;
     border: solid 0.5px rgba(244, 244, 226, 0.8);
     cursor: pointer;
 }
-.buttons:hover{
+
+.buttons:hover {
     background-color: rgba(244, 133, 130, 1.0);
     color: black;
 }
@@ -178,8 +179,7 @@ float: right;
     text-align: center;
 }
 
-.display{
+.display {
     color: red;
     font-size: 20px;
-
 }
