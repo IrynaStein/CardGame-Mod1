@@ -113,10 +113,14 @@ function evaluateCards(array) {
 
 hitButton.addEventListener('click', () => {
     displayACard(popElement(), guestCards)
+    
 })
+
+let newScoreArray = ""
 
 function popElement(){
     let a = secondFetchData[0].pop()
+    newScoreArray = a.value
     return a.image
 }
 
@@ -124,9 +128,10 @@ function popElement(){
 function calculateDraw(housescore, guestscore) {
     fetchCards4(twoCards)
     hitOrStandPlayer(guestscore, housescore)
-    // hitOrStandHouse(housescore, guestscore)
 
 }
+
+// function 
 
 function hitOrStandPlayer(guestscore, housescore) {
     if (guestscore <= 20) {
@@ -137,7 +142,7 @@ function hitOrStandPlayer(guestscore, housescore) {
         //stand return -> hit or stand House
         standButton.addEventListener('click', () => {
             console.log('GUEST STANDS')
-            hitOrStandHouse(housescore, guestscore)
+            hitOrStandHouse(housescore)
         })
 
     }
@@ -151,16 +156,19 @@ function hitOrStandPlayer(guestscore, housescore) {
     }
 }
 
-function hitOrStandHouse(housescore, guestscore) {
+function hitOrStandHouse(housescore) {
     if (housescore <= 17) {
         // hit
-        setTimeout(()=>{return displayACard(popElement(), houseCards)}, 1000)
+        // setTimeout(()=>{return displayACard(popElement(), houseCards)}, 1000)
+        displayACard(popElement(), houseCards)
+        console.log(Number(housescore) + Number(newScoreArray))
     }
     else if (housescore > 17 && housescore <= 20) {
         const decision = Math.ceil(Math.random() * 10)
             if (decision <= 5) {
                 console.log("HOUSE Decision: draw another card", decision)
                 displayACard(popElement(), houseCards)
+                console.log(Number(housescore + newScoreArray))
             }
             else {
                 console.log("HOUSE STANDS")
@@ -225,10 +233,10 @@ function convertValues(array) {
 
 
 // function renderOneCard(data, position, housescore, guestscore) {
-//     convertValues(data)
-//     displayACard(data[0].image, guestCards)
-//     let newPlayerScoreG = (Number(data[0].value) + Number(guestscore))
-//     console.log(newPlayerScoreG)
+    // convertValues(data)
+    // displayACard(data[0].image, guestCards)
+    // let newPlayerScoreG = (Number(data[0].value) + Number(guestscore))
+    // console.log(newPlayerScoreG)
 //     if (newPlayerScoreG === 21) {
 //         hitButton.disabled = true
 //         standButton.disabled = true
