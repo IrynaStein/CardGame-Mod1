@@ -64,6 +64,14 @@ h2 {
     height: 30%;
     width: 45%;
 }
+#extraHOUSEcards-container {
+display: block;
+float: right;
+}
+#extraGUESTcards-container{
+    display: block;
+    float: left; 
+}
 
 #bet-container {
     margin: 1.5%;
