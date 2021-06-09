@@ -83,52 +83,81 @@ function convertValues(array) {
     })
 }
 
-function fetchCards1(url) {
+function fetchCards1(url, position, playerScore) {
     return fetch(url)
         .then(resp => resp.json())
-        .then(data => renderOneCard(data.cards[0]))
+        .then(data => renderOneCard(data.cards[0], position,playerScore))
         .catch(function (error) {
             const alertMessage = error.message
             document.body.innerHTML = alertMessage
         })
 }
 
-function renderOneCard(data) {
-    let img2 = document.createElement('IMG')
-    img2.src = data.image
-    img2.className = "smallcard"
-    const hitButton = document.createElement('button')
-    const standButton = document.createElement('button')
-    hitButton.className = "buttons"
-    standButton.className = "buttons"
-    hitButton.innerText= "HIT"
-    standButton.innerText = "STAND"
-    cardsContainer.append(standButton, hitButton)
-    
-    hitButton.addEventListener('click', (event) => { 
-        event.preventDefault()
-        cardsContainer.appendChild(img2) })
+const hitButton = document.createElement('button')
+const standButton = document.createElement('button')
+hitButton.className = "buttons"
+standButton.className = "buttons"
+hitButton.innerText = "HIT"
+standButton.innerText = "STAND"
+hitButton.disabled = true
+standButton.disabled = true
+cardsContainer.prepend(standButton, hitButton)
+
+function renderOneCard(data, position,playerScore) {
+    (function renderValues(data){
+        if (data.value === "JACK" || data.value === "QUEEN" || data.value === "KING") {
+            data.value = 10
+        }
+        else if (data.value === "ACE") {
+            data.value = 11
+        }
+    })
+
+    if (position === "guest") {
+        let img2 = document.createElement('IMG')
+        img2.src = data.image
+        img2.className = "smallcard"
+        hitButton.disabled = false
+        standButton.disabled = false
+
+        hitButton.addEventListener('click', (event) => {
+            event.preventDefault()
+            const extraGuestCards = document.querySelector("#extraGUESTcards-container")
+            extraGuestCards.appendChild(img2)
+            console.log(data.value + playerScore)
+        })
+        
+    }
+    else if (position === "house") {
+        let img3 = document.createElement('IMG')
+        img3.src = data.image
+        img3.className = "smallcard"
+        const extraHouseCards = document.querySelector("#extraHOUSEcards-container")
+        extraHouseCards.appendChild(img3)
+        console.log(data.value + playerScore)
+    }
+
 
 }
 
 //if value is less than 21 offer choice of HIT or Stand, displays current sum
 function calculateDraw(playerScore, position) {
-    if (position === "guest"){
+    if (position === "guest") {
         if (playerScore < 17) {
             //fetch request for 1 card
             // console.log('draw another card')
-            fetchCards1(oneCard)
+            fetchCards1(oneCard, position, playerScore)
         }
         if (playerScore >= 17 && playerScore <= 20) {
-            const decision = Math.ceil(Math.random()*10)
-            if (decision <= 5){
-                console.log("Decision: draw another", decision)
+            const decision = Math.ceil(Math.random() * 10)
+            if (decision <= 5) {
+                console.log("Display the buttons", decision)
             }
             else {
-                console.log('Decision: I stand', decision)
+                console.log('Display the buttons', decision)
             }
             //math.random for triggering a fetch request
-            
+
         }
         if (playerScore === 21) {
             //congratulations;displays wonner name; end game - do you want to play another game?
@@ -139,222 +168,236 @@ function calculateDraw(playerScore, position) {
             console.log("BUSTED!")
         }
     }
-    else {
-        console.log("The house is playing")
-    }
+    // if (position === "house") {
+        else{
+        if (playerScore < 17) {
+            //fetch request for 1 card
+            // console.log('draw another card')
+            fetchCards1(oneCard, position, playerScore)
+        }
+        if (playerScore >= 17 && playerScore <= 20) {
+            const decision = Math.ceil(Math.random() * 10)
+            if (decision <= 5) {
+                console.log("Decision: draw another", decision)
+            }
+            else {
+                console.log('Decision: I stand', decision)
+            }
 
-}
-
-//function Evaluate cards
-
-function evaluateCards(array) {
-    convertValues(array)
-    //summs up values of dealers cards
-    let housescore = Number(array[1].value) + Number(array[2].value)
-    console.log(housescore)
-    //sums up values of players cards
-    let guestscore = Number(array[0].value) + Number(array[3].value)
-    console.log(guestscore)
-    calculateDraw(housescore, "guest")
-    calculateDraw(guestscore)
-    //order of rendered cards below (1,2 - guest cards; 3,0 - house)
-    // console.log(array[1].value)
-    // console.log(array[2].value)
-    // console.log(array[3].value)
-    // console.log(array[0].value)
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// function renderCards(setOftwoCards) {
-
-//     function removeAllChildNodes(parent) {
-//         while (parent.firstChild) {
-//             parent.removeChild(parent.firstChild);
-//         }
-//     }
-
-//     const cardsContainer = document.getElementById('cards-image-containers')
-//     if (gameOn.innerHTML === "Lets play!") {
-//         gameOn.innerHTML = "Draw cards!"
-//         score.disabled = true
-//     }
-//     else {
-//         new Audio("./sound/switch.mp3").play()
-//         evaluate.disabled = false
-//         removeAllChildNodes(cardsContainer)
-
-//         let value1 = []
-//         cardValues.unshift(value1)
-//         setOftwoCards.forEach(eachCardObj => {
-//             let img = document.createElement('IMG')
-//             img.className = "cardWindow"
-//             img.src = eachCardObj.image
-//             cardsContainer.appendChild(img)
-//             let value = eachCardObj.value
-//             value1.push(value)
-//             // let p1 = value1[0]
-//             // let p2 = value1[1]
-//             score.disabled = true
-//         })
-
-//     }
-// }
-
-const increaseBet = document.getElementById('increase')
-const decreaseBet = document.getElementById('decrease')
-const betSetter = document.getElementById('bet')
-let betAmount = 5
-
-function addBetMoney() {
-    new Audio("./sound/ascend.mp3").play()
-    if (betAmount < 100) {
-        betAmount += 5
-        betSetter.innerHTML = betAmount
-    }
-    else {
-        alert(`Play responsibly. $100 is your max bet`)
+        }
     }
 }
 
-function subtractBetMoney() {
-    new Audio("./sound/descend.mp3").play()
-    if (betAmount > 5) {
-        betAmount -= 5
-        betSetter.innerHTML = betAmount
-    }
-}
+        //function Evaluate cards
 
-increaseBet.addEventListener('click', addBetMoney)
-decreaseBet.addEventListener('click', subtractBetMoney)
+        function evaluateCards(array) {
+            convertValues(array)
+            //summs up values of dealers cards
+            let housescore = Number(array[1].value) + Number(array[2].value)
+            console.log(housescore)
+            //sums up values of players cards
+            let guestscore = Number(array[0].value) + Number(array[3].value)
+            console.log(guestscore)
+            calculateDraw(housescore, "guest")
+            calculateDraw(guestscore, "house")
+            //order of rendered cards below (1,2 - guest cards; 3,0 - house)
+            // console.log(array[1].value)
+            // console.log(array[2].value)
+            // console.log(array[3].value)
+            // console.log(array[0].value)
 
-const submitBet = document.getElementById('submit-bet')
-const houseNamenDisplay = document.getElementById('house')
-const playerNameDisplay = document.getElementById('playerName')
-const bankContainer = document.querySelector('.bank-container')
-const playerBank = document.getElementById('playerBank')
-const houseBank = document.getElementById('houseBank')
+        }
 
-submitBet.addEventListener('click', event => {
-    const snd = new Audio("./sound/preview.mp3");
-    snd.play();
-    bankContainer.style.display = "block"
-    gameOn.style.display = "block"
-    evaluate.style.display = "block"
-    houseNamenDisplay.innerHTML = "GUEST"//switched to guest
-    playerNameDisplay.innerHTML = "HOUSE"//switched to house
-    houseBank.innerHTML = betAmount
-    playerBank.innerHTML = betAmount
-    betSetter.innerHTML = betAmount
-    event.preventDefault()
-})
 
-evaluate.addEventListener('click', function () {
-    new Audio("./sound/calculate.mp3").play()
-    score.disabled = false
-    compareValues()
-})
 
-function compareValues() {
-    let p1 = cardValues[0][0]
 
-    switch (p1) {
-        case "JACK":
-            p1 = 11
-            break;
-        case "QUEEN":
-            p1 = 12
-            break;
-        case "KING":
-            p1 = 13
-            break;
-        case "ACE":
-            p1 = 14
-            break;
-    };
 
-    let p2 = cardValues[0][1]
 
-    switch (p2) {
-        case "JACK":
-            p2 = 11
-            break;
-        case "QUEEN":
-            p2 = 12
-            break;
-        case "KING":
-            p2 = 13
-            break;
-        case "ACE":
-            p2 = 14
-            break;
-    }
-    if (parseInt(p1, 10) > parseInt(p2, 10)) {
-        houseBank.innerHTML = parseInt(betSetter.innerHTML, 10)
-        playerBank.innerHTML = 0
-        totalHB.push(parseInt(betSetter.innerHTML, 10))
-    }
-    else if (parseInt(p1, 10) === parseInt(p2, 10)) {
-        alert(`It's a draw! Play again`)
-    }
-    else {
-        playerBank.innerHTML = parseInt(betSetter.innerHTML, 10)
-        houseBank.innerHTML = 0
-        totalPB.push(parseInt(betSetter.innerHTML, 10))
-    }
-}
 
-const totalHB = []
-const totalPB = []
 
-score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
-    let a = totalHB.reduce(function (acc, val) {
-        return (acc + val);
-    }, 0)
-    let b = totalPB.reduce(function (acc, val) {
-        return (acc + val);
-    }, 0)
 
-    if (a > b) {
-        houseBank.className = "display"
-        houseBank.innerHTML = a
-        playerBank.innerHTML = b
-        setTimeout(function () {
-            houseBank.innerHTML = 0
-            playerBank.innerHTML = 0
-            houseBank.className = ""
-        }, 6000);
-        new Audio("./sound/fail.mp3").play()
 
-    }
-    else {
-        playerBank.className = "display"
-        houseBank.innerHTML = a
-        playerBank.innerHTML = b
-        setTimeout(function () {
-            houseBank.innerHTML = 0
-            playerBank.innerHTML = 0
-            playerBank.className = ""
-        }, 6000);
-        new Audio("./sound/applause.mp3").play()
-    }
 
-})
+
+
+
+
+
+
+
+
+
+        // function renderCards(setOftwoCards) {
+
+        //     function removeAllChildNodes(parent) {
+        //         while (parent.firstChild) {
+        //             parent.removeChild(parent.firstChild);
+        //         }
+        //     }
+
+        //     const cardsContainer = document.getElementById('cards-image-containers')
+        //     if (gameOn.innerHTML === "Lets play!") {
+        //         gameOn.innerHTML = "Draw cards!"
+        //         score.disabled = true
+        //     }
+        //     else {
+        //         new Audio("./sound/switch.mp3").play()
+        //         evaluate.disabled = false
+        //         removeAllChildNodes(cardsContainer)
+
+        //         let value1 = []
+        //         cardValues.unshift(value1)
+        //         setOftwoCards.forEach(eachCardObj => {
+        //             let img = document.createElement('IMG')
+        //             img.className = "cardWindow"
+        //             img.src = eachCardObj.image
+        //             cardsContainer.appendChild(img)
+        //             let value = eachCardObj.value
+        //             value1.push(value)
+        //             // let p1 = value1[0]
+        //             // let p2 = value1[1]
+        //             score.disabled = true
+        //         })
+
+        //     }
+        // }
+
+        const increaseBet = document.getElementById('increase')
+        const decreaseBet = document.getElementById('decrease')
+        const betSetter = document.getElementById('bet')
+        let betAmount = 5
+
+        function addBetMoney() {
+            new Audio("./sound/ascend.mp3").play()
+            if (betAmount < 100) {
+                betAmount += 5
+                betSetter.innerHTML = betAmount
+            }
+            else {
+                alert(`Play responsibly. $100 is your max bet`)
+            }
+        }
+
+        function subtractBetMoney() {
+            new Audio("./sound/descend.mp3").play()
+            if (betAmount > 5) {
+                betAmount -= 5
+                betSetter.innerHTML = betAmount
+            }
+        }
+
+        increaseBet.addEventListener('click', addBetMoney)
+        decreaseBet.addEventListener('click', subtractBetMoney)
+
+        const submitBet = document.getElementById('submit-bet')
+        const houseNamenDisplay = document.getElementById('house')
+        const playerNameDisplay = document.getElementById('playerName')
+        const bankContainer = document.querySelector('.bank-container')
+        const playerBank = document.getElementById('playerBank')
+        const houseBank = document.getElementById('houseBank')
+
+        submitBet.addEventListener('click', event => {
+            const snd = new Audio("./sound/preview.mp3");
+            snd.play();
+            bankContainer.style.display = "block"
+            gameOn.style.display = "block"
+            evaluate.style.display = "block"
+            houseNamenDisplay.innerHTML = "GUEST"//switched to guest
+            playerNameDisplay.innerHTML = "HOUSE"//switched to house
+            houseBank.innerHTML = betAmount
+            playerBank.innerHTML = betAmount
+            betSetter.innerHTML = betAmount
+            event.preventDefault()
+        })
+
+        evaluate.addEventListener('click', function () {
+            new Audio("./sound/calculate.mp3").play()
+            score.disabled = false
+            compareValues()
+        })
+
+        function compareValues() {
+            let p1 = cardValues[0][0]
+
+            switch (p1) {
+                case "JACK":
+                    p1 = 11
+                    break;
+                case "QUEEN":
+                    p1 = 12
+                    break;
+                case "KING":
+                    p1 = 13
+                    break;
+                case "ACE":
+                    p1 = 14
+                    break;
+            };
+
+            let p2 = cardValues[0][1]
+
+            switch (p2) {
+                case "JACK":
+                    p2 = 11
+                    break;
+                case "QUEEN":
+                    p2 = 12
+                    break;
+                case "KING":
+                    p2 = 13
+                    break;
+                case "ACE":
+                    p2 = 14
+                    break;
+            }
+            if (parseInt(p1, 10) > parseInt(p2, 10)) {
+                houseBank.innerHTML = parseInt(betSetter.innerHTML, 10)
+                playerBank.innerHTML = 0
+                totalHB.push(parseInt(betSetter.innerHTML, 10))
+            }
+            else if (parseInt(p1, 10) === parseInt(p2, 10)) {
+                alert(`It's a draw! Play again`)
+            }
+            else {
+                playerBank.innerHTML = parseInt(betSetter.innerHTML, 10)
+                houseBank.innerHTML = 0
+                totalPB.push(parseInt(betSetter.innerHTML, 10))
+            }
+        }
+
+        const totalHB = []
+        const totalPB = []
+
+        score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
+            let a = totalHB.reduce(function (acc, val) {
+                return (acc + val);
+            }, 0)
+            let b = totalPB.reduce(function (acc, val) {
+                return (acc + val);
+            }, 0)
+
+            if (a > b) {
+                houseBank.className = "display"
+                houseBank.innerHTML = a
+                playerBank.innerHTML = b
+                setTimeout(function () {
+                    houseBank.innerHTML = 0
+                    playerBank.innerHTML = 0
+                    houseBank.className = ""
+                }, 6000);
+                new Audio("./sound/fail.mp3").play()
+
+            }
+            else {
+                playerBank.className = "display"
+                houseBank.innerHTML = a
+                playerBank.innerHTML = b
+                setTimeout(function () {
+                    houseBank.innerHTML = 0
+                    playerBank.innerHTML = 0
+                    playerBank.className = ""
+                }, 6000);
+                new Audio("./sound/applause.mp3").play()
+            }
+
+        })
