@@ -79,11 +79,10 @@ function displayACard(srcUrl, appendTo) {
     appendTo.appendChild(img)
 }
 function renderCards(array) {
-    console.log(array)
     const newArray = array.slice(2)
-    const {value, image} = array[0]
+    const { value, image } = array[0]
     hiddenCard = image
-    console.log(hiddenCard)
+    console.log(value)
     const value1 = array[1].value
     // const suit1 = array[1].suit
     let img1 = document.createElement('IMG')
@@ -94,7 +93,6 @@ function renderCards(array) {
     img1.id = "hidden-card"//from array[0]
     displayACard(array[1].image, houseCards)
     houseCards.appendChild(img1)
-    console.log(newArray, value, value1)
     newArray.map((card) => {
         displayACard(card.image, guestCards)
     })
@@ -104,8 +102,8 @@ function renderCards(array) {
 
 
 let guestscore = ""
-let housescore = ""
 let newScoreArray = ""
+
 
 //function Evaluate cards
 function evaluateCards(array) {
@@ -115,34 +113,32 @@ function evaluateCards(array) {
     guestscore = Number(array[2].value) + Number(array[3].value)
     // console.log(array[2].value , array[3].value) 
     playerScoreDisplay.innerText = guestscore
-    console.log(guestscore)
+    console.log(guestscore + "guestscore")
     //sums up values of players cards
     // console.log(array[0].value, array[1].value)
     housescore = Number(array[0].value) + Number(array[1].value)
     houseScoreDisplay.innerText = ""
-    console.log(housescore)
+    console.log(housescore + "housescore")
     calculateDraw(housescore, guestscore)
     //order of rendered cards (0,1 - house; 2,3 - guest)
 }
-function endOfGame (message){
+function endOfGame(message) {
     hitButton.disabled = true
     standButton.disabled = true
     document.getElementById('hidden-card').remove()
     displayACard(hiddenCard, houseCards)
-    setTimeout(houseScoreDisplay.innerText = housescore, 1000)
-    gameOn.disabled = false 
+    houseScoreDisplay.innerText = housescore
+    gameOn.disabled = false
     gameOn.innerText = message
-    setTimeout(gameOn.innerHTML = "NEW GAME", 3000)
+    setTimeout(() => { return gameOn.innerHTML = "NEW GAME" }, 3000)
 }
 
 
 hitButton.addEventListener('click', () => {
     displayACard(popElement(), guestCards)
-    // hitButton.disabled = true
-    // standButton.disabled = true
     let d = convertValues(newScoreArray)
     guestscore = (Number(guestscore) + Number(d))
-    console.log(guestscore)
+    console.log(guestscore + "updated guest score")
     playerScoreDisplay.innerText = guestscore
     if (guestscore === 21) {
         endOfGame("GUEST: BLACK JACK")
@@ -154,7 +150,7 @@ hitButton.addEventListener('click', () => {
         gameOn.innerText = `IT'S HOUSE TURN`
         hitButton.disabled = true
         standButton.disabled = true
-        hitOrStandHouse(housescore)
+        hitOrStandHouse()
     }
 })
 
@@ -175,7 +171,7 @@ function calculateDraw(housescore, guestscore) {
 
 
 // functions hold logic of "move" decisions 
-function hitOrStandPlayer(guestscore, housescore) {
+function hitOrStandPlayer() {
     if (guestscore <= 20) {
         if (housescore === 21) {
             endOfGame("HOUSE: BLACK JACK")
@@ -190,8 +186,8 @@ function hitOrStandPlayer(guestscore, housescore) {
             // hit - draw another card
             //stand return -> hit or stand House
             standButton.addEventListener('click', () => {
-                gameOn.innerHTML = 'GUEST STANDS'
-                hitOrStandHouse(housescore)
+                gameOn.innerHTML = 'GUEST: STANDS'
+                hitOrStandHouse()
             })
 
         }
@@ -206,14 +202,16 @@ function hitOrStandPlayer(guestscore, housescore) {
     }
 }
 
-function hitOrStandHouse(housescore) {
+let housescore = ""
+console.log(housescore)
+
+function hitOrStandHouse() {
     if (housescore <= 17) {
         // hit
-        // setTimeout(()=>{return displayACard(popElement(), houseCards)}, 1000)
         displayACard(popElement(), houseCards)
-        const b = convertValues(newScoreArray)
-        housescore = (Number(housescore) + Number(b))
-        console.log(housescore, b)
+        let b = convertValues(newScoreArray)
+        housescore = (Number(housescore) + Number(b))//DOESNT ADD HERE
+        console.log(housescore)
         if (housescore === 21) {
             //Black-Jack
             endOfGame('HOUSE: BLACK JACK')
@@ -221,7 +219,7 @@ function hitOrStandHouse(housescore) {
         else if (housescore < 21) {
             gameOn.innerText = "GUEST: YOUR TURN"
             hitButton.disabled = false
-            standButton.disabled = false 
+            standButton.disabled = false
         }
         else {
             //BUST
@@ -233,9 +231,9 @@ function hitOrStandHouse(housescore) {
         if (decision <= 5) {
             console.log("HOUSE Decision: draw another card", decision)
             displayACard(popElement(), houseCards)
-            const c = convertValues(newScoreArray)
-            housescore = (Number(housescore) + Number(c))
-            console.log(housescore, c)
+            let c = convertValues(newScoreArray)
+            housescore = (Number(housescore) + Number(c))//DOESNT WORK HERE
+            console.log(housescore + "updated house score")
             if (housescore === 21) {
                 //Black-Jack
                 endOfGame('HOUSE: BLACK JACK')
@@ -247,11 +245,10 @@ function hitOrStandHouse(housescore) {
             }
             else {
                 //BUST
-                endOfGame('HOUSE BUST')
+                endOfGame('HOUSE: BUST')
             }
-        }
-        else {
-            gameOn.innerHTML = "HOUSE STANDS. GUEST: YOUR TURN"
+        } else {
+            gameOn.innerHTML = "GUEST: YOUR TURN"
             hitButton.disabled = false
             standButton.disabled = false
         }
@@ -281,7 +278,7 @@ function fetchCards4(url) {
 function dataProcess(data) {
     return secondFetchData.push(data)
 }
-console.log(secondFetchData)
+
 //sets card values to Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.
 function convertValues(array) {
     if (Array.isArray(array)) {
