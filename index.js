@@ -93,12 +93,15 @@ function renderCards(array) {
     })
     evaluateCards(array)
 }
+
+let guestscore = ""
+
 //function Evaluate cards
 function evaluateCards(array) {
     // console.log(array)
     convertValues(array)
     //summs up values of dealers cards
-    let guestscore = Number(array[2].value) + Number(array[3].value)
+    guestscore = Number(array[2].value) + Number(array[3].value)
     // console.log(array[2].value , array[3].value) 
     playerScoreDisplay.innerText = guestscore
     console.log(guestscore)
@@ -115,7 +118,23 @@ hitButton.addEventListener('click', () => {
     displayACard(popElement(), guestCards)
     hitButton.disabled = true
     standButton.disabled = true
-
+    let d = convertValues(newScoreArray)
+    guestscore = (Number(guestscore) + Number(d))
+    console.log(guestscore)
+    playerScoreDisplay.innerText = guestscore
+if (guestscore === 21){
+    alert("GUEST BLACK JACK")
+        hitButton.disabled = true
+        standButton.disabled = true
+}
+else if (guestscore > 21){
+    alert("GUEST BUST")
+        hitButton.disabled = true
+        standButton.disabled = true
+}
+else {
+    console.log(`It's HOUSE turn`)
+}
 })
 
 let newScoreArray = ""
@@ -133,28 +152,44 @@ function calculateDraw(housescore, guestscore) {
 
 }
 
-// function 
+// functions hold logic of "move" decisions 
 
 function hitOrStandPlayer(guestscore, housescore) {
     if (guestscore <= 20) {
-        //hit or stand
-        hitButton.disabled = false
-        standButton.disabled = false
-        // hit - draw another card
-        //stand return -> hit or stand House
-        standButton.addEventListener('click', () => {
-            console.log('GUEST STANDS')
-            hitOrStandHouse(housescore)
-        })
+        if (housescore === 21) {
+            alert("HOUSE BLACK JACK")
+            hitButton.disabled = true
+            standButton.disabled = true
+        }
+        else if (housescore > 21) {
+            alert("HOUSE BUST")
+            hitButton.disabled = true
+            standButton.disabled = true
+        }
+        else {
+            //hit or stand
+            hitButton.disabled = false
+            standButton.disabled = false
+            // hit - draw another card
+            //stand return -> hit or stand House
+            standButton.addEventListener('click', () => {
+                console.log('GUEST STANDS')
+                hitOrStandHouse(housescore)
+            })
 
+        }
     }
     else if (guestscore === 21) {
         //Black-Jack
         alert("GUEST BLACK JACK")
+        hitButton.disabled = true
+        standButton.disabled = true
     }
-    else {
+    else if (guestscore > 21) {
         //BUST
         alert("GUEST BUST")
+        hitButton.disabled = true
+        standButton.disabled = true
     }
 }
 
@@ -169,6 +204,8 @@ function hitOrStandHouse(housescore) {
         if (housescore === 21) {
             //Black-Jack
             console.log('HOUSE BLACK JACK')
+            hitButton.disabled = true
+            standButton.disabled = true
         }
         else if (housescore < 21) {
             console.log("Guest turn")
@@ -178,6 +215,8 @@ function hitOrStandHouse(housescore) {
         else {
             //BUST
             console.log('HOUSE BUST')
+            hitButton.disabled = true
+            standButton.disabled = true
         }
     }
     else if (housescore > 17 && housescore <= 20) {
@@ -191,6 +230,8 @@ function hitOrStandHouse(housescore) {
             if (housescore === 21) {
                 //Black-Jack
                 console.log('HOUSE BLACK JACK')
+                hitButton.disabled = true
+                standButton.disabled = true
             }
             else if (housescore < 21) {
                 console.log("Guest turn")
@@ -200,6 +241,8 @@ function hitOrStandHouse(housescore) {
             else {
                 //BUST
                 console.log('HOUSE BUST')
+                hitButton.disabled = true
+                standButton.disabled = true
             }
         }
         else {
@@ -207,20 +250,19 @@ function hitOrStandHouse(housescore) {
             hitButton.disabled = false
             standButton.disabled = false
         }
-        // let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
-        // console.log(newPlayerScoreH)
-        //Math.random decision to hit of stand
-        //if hit -> draw a card
-        //if stand hitOrStand player
 
     }
     else if (housescore === 21) {
         //Black-Jack
         console.log('HOUSE BLACK JACK')
+        hitButton.disabled = true
+        standButton.disabled = true
     }
     else if (housescore > 21) {
         //BUST
         console.log('HOUSE BUST')
+        hitButton.disabled = true
+        standButton.disabled = true
     }
 }
 
@@ -265,80 +307,6 @@ function convertValues(array) {
 }
 
 
-
-
-// function fetchCards2(url, position, housescore, guestscore) {
-//     return fetch(url)
-//         .then(resp => resp.json())
-//         .then(data => renderOneCard(data.cards, position, housescore, guestscore))
-//         .catch(function (error) {
-//             const alertMessage = error.message
-//             document.body.innerHTML = alertMessage
-//         })
-// }
-
-
-
-// function renderOneCard(data, position, housescore, guestscore) {
-// convertValues(data)
-// displayACard(data[0].image, guestCards)
-// let newPlayerScoreG = (Number(data[0].value) + Number(guestscore))
-// console.log(newPlayerScoreG)
-//     if (newPlayerScoreG === 21) {
-//         hitButton.disabled = true
-//         standButton.disabled = true
-//         alert("Guest, you got a Black Jack")
-//     }
-//     if (newPlayerScoreG > 21) {
-//         hitButton.disabled = true
-//         standButton.disabled = true
-//         alert("Guest, you are BUSTED! House wins")
-//     }
-//     if (newPlayerScoreG < 21) {
-//         console.log("Guest, it's house turn")
-//         if (housescore < 17) {
-//             displayACard(data[1].image, houseCards)
-//             let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
-//             console.log(newPlayerScoreH)
-//             if (newPlayerScoreH > 21) {
-//                 console.log("House you are BUSTED! Guest wins")
-//             }
-//             if (newPlayerScoreH === 21) {
-//                 console.log("House, you got BLACK JACK")
-//             }
-//             if (newPlayerScoreH < 21) {
-//                 console.log("Need another card")
-//             }
-//         }
-//         if (housescore >= 17 && housescore <= 20) {
-//             const decision = Math.ceil(Math.random() * 10)
-//             if (decision <= 5) {
-//                 console.log("HOUSE Decision: draw another card", decision)
-//                 displayACard(data[1].image, houseCards)
-//                 let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
-//                 console.log(newPlayerScoreH)
-//                 if (newPlayerScoreH > 21) {
-//                     console.log("House you are BUSTED! Guest wins")
-//                 }
-//                 if (newPlayerScoreH === 21) {
-//                     console.log("House, you got BLACK JACK")
-//                 }
-//                 if (newPlayerScoreH < 21) {
-//                     console.log("Need another card#2")
-//                 }
-//             }
-//             else {
-//                 console.log('HOUSE: Decision: I stand', decision)
-//             }
-//         }
-
-//     }
-// }
-
-
-
-
-
 //create a button within Modal Box for a new game 
 // const newGameButton = document.createElement('button')
 // newGameButton.innerText = "New Game"
@@ -347,7 +315,6 @@ function convertValues(array) {
 //     cardsContainer.innerHTML = ""
 //     fetchCards(cards4Deck)
 // })
-
 
 
 
@@ -485,3 +452,6 @@ score.addEventListener('click', function total() { //add dropdown that allows to
     }
 
 })
+
+
+
