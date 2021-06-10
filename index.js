@@ -47,11 +47,13 @@ form.addEventListener('submit', function (event) {
         form.reset()
 
     } else {
-        alert("Please, introduce yourself")
+        console.log("Please, introduce yourself")
     }
 })
 
 let cardValues = []
+let hiddenCard = ""
+
 
 gameOn.addEventListener('click', () => fetchCards(cards4Deck))
 //first fetch request draws 4 cards
@@ -75,26 +77,31 @@ function displayACard(srcUrl, appendTo) {
 function renderCards(array) {
     console.log(array)
     const newArray = array.slice(2)
-    const { value, suit } = array[0]
+    const {value, image} = array[0]
+    hiddenCard = image
+    console.log(hiddenCard)
     const value1 = array[1].value
-    const suit1 = array[1].suit
+    // const suit1 = array[1].suit
     let img1 = document.createElement('IMG')
     //refactor all this as a set up for innerHTML
     img1.src = "./images/backcard.png"
     img1.setAttribute("width", "108 px")
     img1.setAttribute("height", "150 px")
-
-    img1.id = `${value},${suit}`//from array[0]
+    img1.id = "hidden-card"//from array[0]
     displayACard(array[1].image, houseCards)
     houseCards.appendChild(img1)
-    console.log(newArray, value + suit, value1 + suit1)
+    console.log(newArray, value, value1)
     newArray.map((card) => {
         displayACard(card.image, guestCards)
     })
     evaluateCards(array)
 }
 
+
+
 let guestscore = ""
+let housescore = ""
+let newScoreArray = ""
 
 //function Evaluate cards
 function evaluateCards(array) {
@@ -107,37 +114,46 @@ function evaluateCards(array) {
     console.log(guestscore)
     //sums up values of players cards
     // console.log(array[0].value, array[1].value)
-    let housescore = Number(array[0].value) + Number(array[1].value)
+    housescore = Number(array[0].value) + Number(array[1].value)
     houseScoreDisplay.innerText = ""
     console.log(housescore)
     calculateDraw(housescore, guestscore)
     //order of rendered cards (0,1 - house; 2,3 - guest)
 }
+function endOfGame (){
+    hitButton.disabled = true
+    standButton.disabled = true
+    document.getElementById('hidden-card').remove()
+    displayACard(hiddenCard, houseCards)
+    setTimeout(houseScoreDisplay.innerText = housescore, 1000)   
+}
+
 
 hitButton.addEventListener('click', () => {
     displayACard(popElement(), guestCards)
-    hitButton.disabled = true
-    standButton.disabled = true
+    // hitButton.disabled = true
+    // standButton.disabled = true
     let d = convertValues(newScoreArray)
     guestscore = (Number(guestscore) + Number(d))
     console.log(guestscore)
     playerScoreDisplay.innerText = guestscore
-if (guestscore === 21){
-    alert("GUEST BLACK JACK")
+    if (guestscore === 21) {
+        console.log("GUEST BLACK JACK")
+        endOfGame()
+    }
+    else if (guestscore > 21) {
+        console.log("GUEST BUST")
+        endOfGame()
+    }
+    else {
+        console.log(`It's HOUSE turn`)
         hitButton.disabled = true
         standButton.disabled = true
-}
-else if (guestscore > 21){
-    alert("GUEST BUST")
-        hitButton.disabled = true
-        standButton.disabled = true
-}
-else {
-    console.log(`It's HOUSE turn`)
-}
+        hitOrStandHouse(housescore)
+    }
 })
 
-let newScoreArray = ""
+
 
 function popElement() {
     let a = secondFetchData[0].pop()
@@ -152,19 +168,17 @@ function calculateDraw(housescore, guestscore) {
 
 }
 
-// functions hold logic of "move" decisions 
 
+// functions hold logic of "move" decisions 
 function hitOrStandPlayer(guestscore, housescore) {
     if (guestscore <= 20) {
         if (housescore === 21) {
-            alert("HOUSE BLACK JACK")
-            hitButton.disabled = true
-            standButton.disabled = true
+            console.log("HOUSE BLACK JACK")
+            endOfGame()
         }
         else if (housescore > 21) {
-            alert("HOUSE BUST")
-            hitButton.disabled = true
-            standButton.disabled = true
+            console.log("HOUSE BUST")
+            endOfGame()
         }
         else {
             //hit or stand
@@ -181,15 +195,13 @@ function hitOrStandPlayer(guestscore, housescore) {
     }
     else if (guestscore === 21) {
         //Black-Jack
-        alert("GUEST BLACK JACK")
-        hitButton.disabled = true
-        standButton.disabled = true
+        console.log("GUEST BLACK JACK")
+        endOfGame()
     }
     else if (guestscore > 21) {
         //BUST
-        alert("GUEST BUST")
-        hitButton.disabled = true
-        standButton.disabled = true
+        console.log("GUEST BUST")
+        endOfGame()//doesnt work here
     }
 }
 
@@ -204,19 +216,17 @@ function hitOrStandHouse(housescore) {
         if (housescore === 21) {
             //Black-Jack
             console.log('HOUSE BLACK JACK')
-            hitButton.disabled = true
-            standButton.disabled = true
+            endOfGame()
         }
         else if (housescore < 21) {
             console.log("Guest turn")
             hitButton.disabled = false
-            standButton.disabled = false
+            standButton.disabled = false 
         }
         else {
             //BUST
             console.log('HOUSE BUST')
-            hitButton.disabled = true
-            standButton.disabled = true
+            endOfGame()
         }
     }
     else if (housescore > 17 && housescore <= 20) {
@@ -230,8 +240,7 @@ function hitOrStandHouse(housescore) {
             if (housescore === 21) {
                 //Black-Jack
                 console.log('HOUSE BLACK JACK')
-                hitButton.disabled = true
-                standButton.disabled = true
+                endOfGame
             }
             else if (housescore < 21) {
                 console.log("Guest turn")
@@ -241,8 +250,7 @@ function hitOrStandHouse(housescore) {
             else {
                 //BUST
                 console.log('HOUSE BUST')
-                hitButton.disabled = true
-                standButton.disabled = true
+                endOfGame()
             }
         }
         else {
@@ -255,14 +263,12 @@ function hitOrStandHouse(housescore) {
     else if (housescore === 21) {
         //Black-Jack
         console.log('HOUSE BLACK JACK')
-        hitButton.disabled = true
-        standButton.disabled = true
+        endOfGame()
     }
     else if (housescore > 21) {
         //BUST
         console.log('HOUSE BUST')
-        hitButton.disabled = true
-        standButton.disabled = true
+        endOfGame()
     }
 }
 
@@ -307,6 +313,8 @@ function convertValues(array) {
 }
 
 
+
+
 //create a button within Modal Box for a new game 
 // const newGameButton = document.createElement('button')
 // newGameButton.innerText = "New Game"
@@ -330,7 +338,7 @@ function addBetMoney() {
         betSetter.innerHTML = betAmount
     }
     else {
-        alert(`Play responsibly. $100 is your max bet`)
+        console.log(`Play responsibly. $100 is your max bet`)
     }
 }
 
@@ -407,7 +415,7 @@ function compareValues() {
         totalHB.push(parseInt(betSetter.innerHTML, 10))
     }
     else if (parseInt(p1, 10) === parseInt(p2, 10)) {
-        alert(`It's a draw! Play again`)
+        console.log(`It's a draw! Play again`)
     }
     else {
         playerBank.innerHTML = parseInt(betSetter.innerHTML, 10)
