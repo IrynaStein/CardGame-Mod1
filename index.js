@@ -113,12 +113,14 @@ function evaluateCards(array) {
 
 hitButton.addEventListener('click', () => {
     displayACard(popElement(), guestCards)
-    
+    hitButton.disabled = true
+    standButton.disabled = true
+
 })
 
 let newScoreArray = ""
 
-function popElement(){
+function popElement() {
     let a = secondFetchData[0].pop()
     newScoreArray = a.value
     return a.image
@@ -150,7 +152,7 @@ function hitOrStandPlayer(guestscore, housescore) {
         //Black-Jack
         alert("GUEST BLACK JACK")
     }
-    else  {
+    else {
         //BUST
         alert("GUEST BUST")
     }
@@ -161,30 +163,62 @@ function hitOrStandHouse(housescore) {
         // hit
         // setTimeout(()=>{return displayACard(popElement(), houseCards)}, 1000)
         displayACard(popElement(), houseCards)
-        console.log(Number(housescore) + Number(newScoreArray))
+        const b = convertValues(newScoreArray)
+        housescore = (Number(housescore) + Number(b))
+        console.log(housescore, b)
+        if (housescore === 21) {
+            //Black-Jack
+            console.log('HOUSE BLACK JACK')
+        }
+        else if (housescore < 21) {
+            console.log("Guest turn")
+            hitButton.disabled = false
+            standButton.disabled = false
+        }
+        else {
+            //BUST
+            console.log('HOUSE BUST')
+        }
     }
     else if (housescore > 17 && housescore <= 20) {
         const decision = Math.ceil(Math.random() * 10)
-            if (decision <= 5) {
-                console.log("HOUSE Decision: draw another card", decision)
-                displayACard(popElement(), houseCards)
-                console.log(Number(housescore + newScoreArray))
+        if (decision <= 5) {
+            console.log("HOUSE Decision: draw another card", decision)
+            displayACard(popElement(), houseCards)
+            const c = convertValues(newScoreArray)
+            housescore = (Number(housescore) + Number(c))
+            console.log(housescore, c)
+            if (housescore === 21) {
+                //Black-Jack
+                console.log('HOUSE BLACK JACK')
+            }
+            else if (housescore < 21) {
+                console.log("Guest turn")
+                hitButton.disabled = false
+                standButton.disabled = false
             }
             else {
-                console.log("HOUSE STANDS")
+                //BUST
+                console.log('HOUSE BUST')
             }
-                // let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
-                // console.log(newPlayerScoreH)
+        }
+        else {
+            console.log("HOUSE STANDS", decision)
+            hitButton.disabled = false
+            standButton.disabled = false
+        }
+        // let newPlayerScoreH = (Number(data[1].value) + Number(housescore))
+        // console.log(newPlayerScoreH)
         //Math.random decision to hit of stand
         //if hit -> draw a card
         //if stand hitOrStand player
-       
+
     }
     else if (housescore === 21) {
         //Black-Jack
         console.log('HOUSE BLACK JACK')
     }
-    else {
+    else if (housescore > 21) {
         //BUST
         console.log('HOUSE BUST')
     }
@@ -201,20 +235,33 @@ function fetchCards4(url) {
 }
 
 
-function dataProcess(data){
+function dataProcess(data) {
     return secondFetchData.push(data)
 }
 console.log(secondFetchData)
 //sets card values to Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.
 function convertValues(array) {
-    array.map((element) => {
-        if (element.value === "JACK" || element.value === "QUEEN" || element.value === "KING") {
-            element.value = 10
+    if (Array.isArray(array)) {
+        array.map((element) => {
+            if (element.value === "JACK" || element.value === "QUEEN" || element.value === "KING") {
+                element.value = 10
+            }
+            else if (element.value === "ACE") {
+                element.value = 11
+            }
+        })
+    }
+    else {
+        if (array === "JACK" || array === "QUEEN" || array === "KING") {
+            return array = 10
         }
-        else if (element.value === "ACE") {
-            element.value = 11
+        else if (array === "ACE") {
+            return array = 11
         }
-    })
+        else {
+            return array
+        }
+    }
 }
 
 
@@ -233,10 +280,10 @@ function convertValues(array) {
 
 
 // function renderOneCard(data, position, housescore, guestscore) {
-    // convertValues(data)
-    // displayACard(data[0].image, guestCards)
-    // let newPlayerScoreG = (Number(data[0].value) + Number(guestscore))
-    // console.log(newPlayerScoreG)
+// convertValues(data)
+// displayACard(data[0].image, guestCards)
+// let newPlayerScoreG = (Number(data[0].value) + Number(guestscore))
+// console.log(newPlayerScoreG)
 //     if (newPlayerScoreG === 21) {
 //         hitButton.disabled = true
 //         standButton.disabled = true
