@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     evaluate.style.display = "none"
     bankContainer.style.display = "none"
 
+
 })
 
 const twoCards = "https://deckofcardsapi.com/api/deck/new/draw/?count=4"
@@ -10,7 +11,7 @@ const cards4Deck = "https://deckofcardsapi.com/api/deck/new/draw/?count=4"
 // const blackJackDeck = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6'
 const gameOn = document.getElementById('gameOn-button')
 const evaluate = document.getElementById('evaluate-button')
-const score = document.getElementById('score')
+// const score = document.getElementById('score')
 const form = document.forms[0]
 const greetingMessage = document.getElementById('greeting')
 const hitButton = document.createElement('button')
@@ -23,7 +24,7 @@ hitButton.disabled = true
 standButton.disabled = true
 evaluate.append(standButton, hitButton)
 const submitBet = document.getElementById('submit-bet')
-const houseNamenDisplay = document.getElementById('houseName')
+const houseNameDisplay = document.getElementById('houseName')
 const playerNameDisplay = document.getElementById('guestName')
 const bankContainer = document.querySelector('.bank-container')
 const playerBank = document.getElementById('guestBank')
@@ -34,7 +35,9 @@ const cardsContainer = document.getElementById('cards-image-containers')
 const houseCards = document.querySelector("#extraHOUSEcards-container")
 const guestCards = document.querySelector("#extraGUESTcards-container")
 
-const secondFetchData = []
+let hitOrStand = true
+
+let secondFetchData = []
 
 form.addEventListener('submit', function (event) {
     event.preventDefault()
@@ -51,7 +54,7 @@ form.addEventListener('submit', function (event) {
     }
 })
 
-let cardValues = []
+
 let hiddenCard = ""
 
 
@@ -62,6 +65,8 @@ function fetchCards(url) {
     guestCards.innerHTML = ""
     gameOn.innerText = ""
     gameOn.disabled = true
+    hitOrStand = true
+    secondFetchData = []
     return fetch(url)
         .then(resp => resp.json())
         .then(data => renderCards(data.cards))
@@ -83,7 +88,7 @@ function renderCards(array) {
     const { value, image } = array[0]
     hiddenCard = image
     console.log(value)
-    const value1 = array[1].value
+    // const value1 = array[1].value
     // const suit1 = array[1].suit
     let img1 = document.createElement('IMG')
     //refactor all this as a set up for innerHTML
@@ -122,19 +127,25 @@ function evaluateCards(array) {
     calculateDraw(housescore, guestscore)
     //order of rendered cards (0,1 - house; 2,3 - guest)
 }
+
+let i = 0
 function endOfGame(message) {
     hitButton.disabled = true
     standButton.disabled = true
+    i++
+    console.log("end of game", i)
     document.getElementById('hidden-card').remove()
     displayACard(hiddenCard, houseCards)
     houseScoreDisplay.innerText = housescore
     gameOn.disabled = false
+    hitOrStand = true
     gameOn.innerText = message
     setTimeout(() => { return gameOn.innerHTML = "NEW GAME" }, 3000)
 }
 
 
 hitButton.addEventListener('click', () => {
+    // hitOrStand = true
     displayACard(popElement(), guestCards)
     let d = convertValues(newScoreArray)
     guestscore = (Number(guestscore) + Number(d))
@@ -142,18 +153,32 @@ hitButton.addEventListener('click', () => {
     playerScoreDisplay.innerText = guestscore
     if (guestscore === 21) {
         endOfGame("GUEST: BLACK JACK")
+        guestRunningScore += betAmount * 2
+        playerBank.innerHTML = `$ ${Number(guestRunningScore)}`
+        houseRunningScore -= betAmount
+        houseBank.innerHTML = `$ ${Number(houseRunningScore)}`
     }
     else if (guestscore > 21) {
         endOfGame("GUEST: BUST")
+        guestRunningScore -= betAmount
+        playerBank.innerHTML = `$ ${Number(guestRunningScore)}`
+        houseRunningScore += betAmount
+        houseBank.innerHTML = `$ ${Number(houseRunningScore)}`
     }
     else {
+        hitOrStand = false
         gameOn.innerText = `IT'S HOUSE TURN`
         hitButton.disabled = true
         standButton.disabled = true
-        hitOrStandHouse()
+        setTimeout(() => { hitOrStandHouse() }, 1000)
     }
 })
 
+standButton.addEventListener('click', () => {
+    gameOn.innerHTML = 'GUEST: STANDS'
+    hitOrStandChecker()
+    setTimeout(() => { hitOrStandHouse() }, 1000)
+})
 
 
 function popElement() {
@@ -164,33 +189,35 @@ function popElement() {
 
 //function calculates card values 
 function calculateDraw(housescore, guestscore) {
-    fetchCards4(twoCards)
-    hitOrStandPlayer(guestscore, housescore)
+    if (housescore === 21) {
+        endOfGame("HOUSE: BLACK JACK")
 
+    }
+    else if (guestscore === 21) {
+        endOfGame("GUEST: BLACK JACK")
+    }
+    else {
+        fetchCards4(twoCards)
+        hitOrStandPlayer(guestscore, housescore)
+    }
 }
 
+function hitOrStandChecker() {
+    if (hitOrStand) {
+        return hitOrStand = false;
+    }
+    else {
+        return endOfGame("COMPARE SCORES NOW")
+    }
+}
 
-// functions hold logic of "move" decisions 
 function hitOrStandPlayer() {
     if (guestscore <= 20) {
-        if (housescore === 21) {
-            endOfGame("HOUSE: BLACK JACK")
-        }
-        else if (housescore > 21) {
-            endOfGame("HOUSE: BUST")
-        }
-        else {
-            //hit or stand
-            hitButton.disabled = false
-            standButton.disabled = false
-            // hit - draw another card
-            //stand return -> hit or stand House
-            standButton.addEventListener('click', () => {
-                gameOn.innerHTML = 'GUEST: STANDS'
-                hitOrStandHouse()
-            })
-
-        }
+        //hit or stand
+        hitButton.disabled = false
+        standButton.disabled = false
+        // hit - draw another card
+        //stand return -> hit or stand House
     }
     else if (guestscore === 21) {
         //Black-Jack
@@ -199,6 +226,10 @@ function hitOrStandPlayer() {
     else if (guestscore > 21) {
         //BUST
         endOfGame("GUEST BUST")
+        guestRunningScore = (Number(guestRunningScore)-Number(betAmount))
+        playerBank.innerHTML = `$ ${Number(guestRunningScore)}`
+        houseRunningScore = (Number(houseRunningScore)+Number(betAmount))
+        houseBank.innerHTML = `$ ${Number(houseRunningScore)}`
     }
 }
 
@@ -206,17 +237,18 @@ let housescore = ""
 console.log(housescore)
 
 function hitOrStandHouse() {
-    if (housescore <= 17) {
+    if (housescore <= 17 && hitOrStand === false) {
         // hit
         displayACard(popElement(), houseCards)
         let b = convertValues(newScoreArray)
-        housescore = (Number(housescore) + Number(b))//DOESNT ADD HERE
+        housescore = (Number(housescore) + Number(b))
         console.log(housescore)
         if (housescore === 21) {
             //Black-Jack
             endOfGame('HOUSE: BLACK JACK')
         }
         else if (housescore < 21) {
+            // hitOr
             gameOn.innerText = "GUEST: YOUR TURN"
             hitButton.disabled = false
             standButton.disabled = false
@@ -224,31 +256,41 @@ function hitOrStandHouse() {
         else {
             //BUST
             endOfGame('HOUSE: BUST')
+            houseRunningScore = (Number(houseRunningScore) - Number(betAmount))
+            houseBank.innerHTML = `$ ${Number(houseRunningScore)}`
+            guestRunningScore = (Number(guestRunningScore) + Number(betAmount))
+            guestBank.innerHTML = `$ ${Number(guestRunningScore)}`
         }
     }
-    else if (housescore > 17 && housescore <= 20) {
+    else if (housescore > 17 && housescore <= 20 && hitOrStand === false) {
         const decision = Math.ceil(Math.random() * 10)
         if (decision <= 5) {
             console.log("HOUSE Decision: draw another card", decision)
             displayACard(popElement(), houseCards)
             let c = convertValues(newScoreArray)
-            housescore = (Number(housescore) + Number(c))//DOESNT WORK HERE
+            housescore = (Number(housescore) + Number(c))
+            hitOrStand = true
             console.log(housescore + "updated house score")
             if (housescore === 21) {
                 //Black-Jack
                 endOfGame('HOUSE: BLACK JACK')
             }
             else if (housescore < 21) {
+                hitOrStand = true
                 gameOn.innerHTML = "GUEST: YOUR TURN"
                 hitButton.disabled = false
                 standButton.disabled = false
             }
-            else {
+            else if (housescore > 21) {
                 //BUST
+                hitOrStand = false
                 endOfGame('HOUSE: BUST')
             }
         } else {
-            gameOn.innerHTML = "GUEST: YOUR TURN"
+            // hitOrStand = false
+            console.log("house decided to stand", decision)
+            hitOrStandChecker()
+            // gameOn.innerHTML = "HOUSE STANDS. GUEST: YOUR TURN"
             hitButton.disabled = false
             standButton.disabled = false
         }
@@ -256,7 +298,7 @@ function hitOrStandHouse() {
     }
     else if (housescore === 21) {
         //Black-Jack
-        endOfGame('HOUSE BLACK JACK')
+        endOfGame('HOUSE: BLACK JACK')
     }
     else if (housescore > 21) {
         //BUST
@@ -267,7 +309,7 @@ function hitOrStandHouse() {
 function fetchCards4(url) {
     return fetch(url)
         .then(resp => resp.json())
-        .then(data => dataProcess(data.cards))
+        .then(data => secondFetchData.push(data.cards))
         .catch(function (error) {
             const alertMessage = error.message
             document.body.innerHTML = alertMessage
@@ -275,59 +317,66 @@ function fetchCards4(url) {
 }
 
 
-function dataProcess(data) {
-    return secondFetchData.push(data)
-}
-
 //sets card values to Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.
+// function convertValues(array) {
+//     if (Array.isArray(array)) {
+//         array.map((element) => {
+//             if (element.value === "JACK" || element.value === "QUEEN" || element.value === "KING") {
+//                 element.value = 10
+//             }
+//             else if (element.value === "ACE") {
+//                 element.value = 11
+//             }
+//         })
+//     }
+//     else {
+//         if (array === "JACK" || array === "QUEEN" || array === "KING") {
+//             return array = 10
+//         }
+//         else if (array === "ACE") {
+//             return array = 11
+//         }
+//         else {
+//             return array
+//         }
+//     }
+// }
+
 function convertValues(array) {
     if (Array.isArray(array)) {
         array.map((element) => {
-            if (element.value === "JACK" || element.value === "QUEEN" || element.value === "KING") {
-                element.value = 10
-            }
-            else if (element.value === "ACE") {
-                element.value = 11
-            }
+            element.value = aBc(element.value)//because we are changing Object attribute
         })
     }
     else {
-        if (array === "JACK" || array === "QUEEN" || array === "KING") {
-            return array = 10
-        }
-        else if (array === "ACE") {
-            return array = 11
-        }
-        else {
-            return array
-        }
+        return aBc(array)
     }
 }
 
-
-
-
-//create a button within Modal Box for a new game 
-// const newGameButton = document.createElement('button')
-// newGameButton.innerText = "New Game"
-// document.body.appendChild(newGameButton)
-// newGameButton.addEventListener('click', ()=>{
-//     cardsContainer.innerHTML = ""
-//     fetchCards(cards4Deck)
-// })
-
+function aBc(array) {
+    if (array === "JACK" || array === "QUEEN" || array === "KING") {
+        return 10
+    }
+    else if (array === "ACE") {
+        return 11
+    }
+    else {
+        return array
+    }
+}
 
 
 const increaseBet = document.getElementById('increase')
 const decreaseBet = document.getElementById('decrease')
 const betSetter = document.getElementById('bet')
-let betAmount = 5
+
+let betAmount = 0
 
 function addBetMoney() {
     new Audio("./sound/ascend.mp3").play()
     if (betAmount < 100) {
         betAmount += 5
-        betSetter.innerHTML = betAmount
+        betSetter.innerHTML = `$ ${betAmount}`
     }
     else {
         console.log(`Play responsibly. $100 is your max bet`)
@@ -338,14 +387,15 @@ function subtractBetMoney() {
     new Audio("./sound/descend.mp3").play()
     if (betAmount > 5) {
         betAmount -= 5
-        betSetter.innerHTML = betAmount
+        betSetter.innerHTML = `$ ${betAmount}`
     }
 }
 
 increaseBet.addEventListener('click', addBetMoney)
 decreaseBet.addEventListener('click', subtractBetMoney)
 
-
+let houseRunningScore = ""
+let guestRunningScore = ""
 
 submitBet.addEventListener('click', event => {
     const snd = new Audio("./sound/preview.mp3");
@@ -353,105 +403,52 @@ submitBet.addEventListener('click', event => {
     bankContainer.style.display = "block"
     gameOn.style.display = "block"
     evaluate.style.display = "block"
-    houseNamenDisplay.innerHTML = "HOUSE"
+    houseNameDisplay.innerHTML = "HOUSE"
     playerNameDisplay.innerHTML = "GUEST"
-    houseBank.innerHTML = betAmount
-    playerBank.innerHTML = betAmount
-    betSetter.innerHTML = betAmount
+    houseBank.innerHTML = `$ ${betAmount}`
+    playerBank.innerHTML = `$ ${betAmount}`
+    houseRunningScore += betAmount
+    guestRunningScore += betAmount
+    betSetter.innerHTML = `$ ${betAmount}`
     event.preventDefault()
 })
 
-// evaluate.addEventListener('click', function () {
-//     new Audio("./sound/calculate.mp3").play()
-//     score.disabled = false
-//     compareValues()
+// const totalHB = []
+// const totalPB = []
+
+// score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
+//     let a = totalHB.reduce(function (acc, val) {
+//         return (acc + val);
+//     }, 0)
+//     let b = totalPB.reduce(function (acc, val) {
+//         return (acc + val);
+//     }, 0)
+
+//     if (a > b) {
+//         houseBank.className = "display"
+//         houseBank.innerHTML = a
+//         playerBank.innerHTML = b
+//         setTimeout(function () {
+//             houseBank.innerHTML = 0
+//             playerBank.innerHTML = 0
+//             houseBank.className = ""
+//         }, 6000);
+//         new Audio("./sound/fail.mp3").play()
+
+//     }
+//     else {
+//         playerBank.className = "display"
+//         houseBank.innerHTML = a
+//         playerBank.innerHTML = b
+//         setTimeout(function () {
+//             houseBank.innerHTML = 0
+//             playerBank.innerHTML = 0
+//             playerBank.className = ""
+//         }, 6000);
+//         new Audio("./sound/applause.mp3").play()
+//     }
+
 // })
-
-function compareValues() {
-    let p1 = cardValues[0][0]
-
-    switch (p1) {
-        case "JACK":
-            p1 = 11
-            break;
-        case "QUEEN":
-            p1 = 12
-            break;
-        case "KING":
-            p1 = 13
-            break;
-        case "ACE":
-            p1 = 14
-            break;
-    };
-
-    let p2 = cardValues[0][1]
-
-    switch (p2) {
-        case "JACK":
-            p2 = 11
-            break;
-        case "QUEEN":
-            p2 = 12
-            break;
-        case "KING":
-            p2 = 13
-            break;
-        case "ACE":
-            p2 = 14
-            break;
-    }
-    if (parseInt(p1, 10) > parseInt(p2, 10)) {
-        houseBank.innerHTML = parseInt(betSetter.innerHTML, 10)
-        playerBank.innerHTML = 0
-        totalHB.push(parseInt(betSetter.innerHTML, 10))
-    }
-    else if (parseInt(p1, 10) === parseInt(p2, 10)) {
-        console.log(`It's a draw! Play again`)
-    }
-    else {
-        playerBank.innerHTML = parseInt(betSetter.innerHTML, 10)
-        houseBank.innerHTML = 0
-        totalPB.push(parseInt(betSetter.innerHTML, 10))
-    }
-}
-
-const totalHB = []
-const totalPB = []
-
-score.addEventListener('click', function total() { //add dropdown that allows to choose between "show current score" and "play anew game"
-    let a = totalHB.reduce(function (acc, val) {
-        return (acc + val);
-    }, 0)
-    let b = totalPB.reduce(function (acc, val) {
-        return (acc + val);
-    }, 0)
-
-    if (a > b) {
-        houseBank.className = "display"
-        houseBank.innerHTML = a
-        playerBank.innerHTML = b
-        setTimeout(function () {
-            houseBank.innerHTML = 0
-            playerBank.innerHTML = 0
-            houseBank.className = ""
-        }, 6000);
-        new Audio("./sound/fail.mp3").play()
-
-    }
-    else {
-        playerBank.className = "display"
-        houseBank.innerHTML = a
-        playerBank.innerHTML = b
-        setTimeout(function () {
-            houseBank.innerHTML = 0
-            playerBank.innerHTML = 0
-            playerBank.className = ""
-        }, 6000);
-        new Audio("./sound/applause.mp3").play()
-    }
-
-})
 
 
 
