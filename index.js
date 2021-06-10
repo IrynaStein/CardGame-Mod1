@@ -58,6 +58,10 @@ let hiddenCard = ""
 gameOn.addEventListener('click', () => fetchCards(cards4Deck))
 //first fetch request draws 4 cards
 function fetchCards(url) {
+    houseCards.innerHTML = ""
+    guestCards.innerHTML = ""
+    gameOn.innerText = ""
+    gameOn.disabled = true
     return fetch(url)
         .then(resp => resp.json())
         .then(data => renderCards(data.cards))
@@ -120,12 +124,15 @@ function evaluateCards(array) {
     calculateDraw(housescore, guestscore)
     //order of rendered cards (0,1 - house; 2,3 - guest)
 }
-function endOfGame (){
+function endOfGame (message){
     hitButton.disabled = true
     standButton.disabled = true
     document.getElementById('hidden-card').remove()
     displayACard(hiddenCard, houseCards)
-    setTimeout(houseScoreDisplay.innerText = housescore, 1000)   
+    setTimeout(houseScoreDisplay.innerText = housescore, 1000)
+    gameOn.disabled = false 
+    gameOn.innerText = message
+    setTimeout(gameOn.innerHTML = "NEW GAME", 3000)
 }
 
 
@@ -138,15 +145,13 @@ hitButton.addEventListener('click', () => {
     console.log(guestscore)
     playerScoreDisplay.innerText = guestscore
     if (guestscore === 21) {
-        console.log("GUEST BLACK JACK")
-        endOfGame()
+        endOfGame("GUEST: BLACK JACK")
     }
     else if (guestscore > 21) {
-        console.log("GUEST BUST")
-        endOfGame()
+        endOfGame("GUEST: BUST")
     }
     else {
-        console.log(`It's HOUSE turn`)
+        gameOn.innerText = `IT'S HOUSE TURN`
         hitButton.disabled = true
         standButton.disabled = true
         hitOrStandHouse(housescore)
@@ -173,12 +178,10 @@ function calculateDraw(housescore, guestscore) {
 function hitOrStandPlayer(guestscore, housescore) {
     if (guestscore <= 20) {
         if (housescore === 21) {
-            console.log("HOUSE BLACK JACK")
-            endOfGame()
+            endOfGame("HOUSE: BLACK JACK")
         }
         else if (housescore > 21) {
-            console.log("HOUSE BUST")
-            endOfGame()
+            endOfGame("HOUSE: BUST")
         }
         else {
             //hit or stand
@@ -187,7 +190,7 @@ function hitOrStandPlayer(guestscore, housescore) {
             // hit - draw another card
             //stand return -> hit or stand House
             standButton.addEventListener('click', () => {
-                console.log('GUEST STANDS')
+                gameOn.innerHTML = 'GUEST STANDS'
                 hitOrStandHouse(housescore)
             })
 
@@ -195,13 +198,11 @@ function hitOrStandPlayer(guestscore, housescore) {
     }
     else if (guestscore === 21) {
         //Black-Jack
-        console.log("GUEST BLACK JACK")
-        endOfGame()
+        endOfGame("GUEST: BLACK JACK")
     }
     else if (guestscore > 21) {
         //BUST
-        console.log("GUEST BUST")
-        endOfGame()//doesnt work here
+        endOfGame("GUEST BUST")
     }
 }
 
@@ -215,18 +216,16 @@ function hitOrStandHouse(housescore) {
         console.log(housescore, b)
         if (housescore === 21) {
             //Black-Jack
-            console.log('HOUSE BLACK JACK')
-            endOfGame()
+            endOfGame('HOUSE: BLACK JACK')
         }
         else if (housescore < 21) {
-            console.log("Guest turn")
+            gameOn.innerText = "GUEST: YOUR TURN"
             hitButton.disabled = false
             standButton.disabled = false 
         }
         else {
             //BUST
-            console.log('HOUSE BUST')
-            endOfGame()
+            endOfGame('HOUSE: BUST')
         }
     }
     else if (housescore > 17 && housescore <= 20) {
@@ -239,22 +238,20 @@ function hitOrStandHouse(housescore) {
             console.log(housescore, c)
             if (housescore === 21) {
                 //Black-Jack
-                console.log('HOUSE BLACK JACK')
-                endOfGame
+                endOfGame('HOUSE: BLACK JACK')
             }
             else if (housescore < 21) {
-                console.log("Guest turn")
+                gameOn.innerHTML = "GUEST: YOUR TURN"
                 hitButton.disabled = false
                 standButton.disabled = false
             }
             else {
                 //BUST
-                console.log('HOUSE BUST')
-                endOfGame()
+                endOfGame('HOUSE BUST')
             }
         }
         else {
-            console.log("HOUSE STANDS", decision)
+            gameOn.innerHTML = "HOUSE STANDS. GUEST: YOUR TURN"
             hitButton.disabled = false
             standButton.disabled = false
         }
@@ -262,13 +259,11 @@ function hitOrStandHouse(housescore) {
     }
     else if (housescore === 21) {
         //Black-Jack
-        console.log('HOUSE BLACK JACK')
-        endOfGame()
+        endOfGame('HOUSE BLACK JACK')
     }
     else if (housescore > 21) {
         //BUST
-        console.log('HOUSE BUST')
-        endOfGame()
+        endOfGame('HOUSE BUST')
     }
 }
 
